@@ -1,7 +1,7 @@
 package main
 
 import (
-	"aerthlib/clix"
+	"github.com/aerth/clix"
 	"fmt"
 	"io/ioutil"
 	"net/http"

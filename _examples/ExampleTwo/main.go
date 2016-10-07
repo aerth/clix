@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/aerthlib/clix"
+	"github.com/aerth/clix"
 	"github.com/gdamore/tcell"
 )
 

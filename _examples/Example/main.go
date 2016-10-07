@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aerthlib/clix"
+	"github.com/aerth/clix"
 	"github.com/gdamore/tcell"
 )
 

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"aerthlib/clix"
+	"github.com/aerth/clix"
 	"flag"
 	"fmt"
 	"log"
