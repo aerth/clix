@@ -9,12 +9,13 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 )
 
 var logfile string
 
 func init() {
-	flag.StringVar(&logfile, "log", os.DevNull, "Log to file. Default is no log.")
+	flag.StringVar(&logfile, "log", "debug.log", "Log to file. Default is no log.")
 }
 
 //logger switches the log engine to a file, rather than stdout.
@@ -28,5 +29,8 @@ func logger() {
 		fmt.Println("Hint: touch " + logfile + ", or chown/chmod it.")
 		os.Exit(1)
 	}
+
 	log.SetOutput(f)
+	log.SetFlags(log.Lshortfile)
+	log.Println(time.Now())
 }
