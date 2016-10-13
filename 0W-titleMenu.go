@@ -13,6 +13,7 @@ import (
 
 // TitleMenu is a simple "press any key to continue" screen to display information
 type TitleMenu struct {
+	Widget
 	screen   tcell.Screen
 	lines    []string
 	title    string
@@ -155,12 +156,12 @@ func (m *TitleMenu) Present() interface{} {
 	}
 
 	m.screen.Show()
-	defer m.screen.Fini()
 	return m.loop()
 }
 
-// TitleMenu loop
+// TitleMenu loop, press any key to continue
 func (m *TitleMenu) loop() interface{} {
+	defer m.screen.Fini()
 	for {
 		ev := m.screen.PollEvent()
 		switch ev := ev.(type) {

@@ -20,7 +20,7 @@ Or a tool.
 package clix
 
 import (
-	"log"
+	"sync"
 
 	"github.com/gdamore/tcell"
 )
@@ -36,6 +36,8 @@ type EventHandler struct {
 	Quitchan     chan int
 	screen       tcell.Screen
 	quitchannels []chan int
+	mu           sync.Mutex
+	launched     bool
 }
 
 // NewEventHandler returns a new one
@@ -48,61 +50,52 @@ func NewEventHandler() *EventHandler {
 	return ev
 }
 
-// Launch starts the attached widgets.
+// Launch fires up the attached widgets. This should be one of the first things called in your main, after attaching to a menu with ev.AddMenuBar
 func (ev *EventHandler) Launch() {
-	for _, v := range ev.MenuBars {
-
-		//log.Printf("Launching Event Handler %v of %v\n", i+1, len(ev.MenuBars))
-
+	if ev.launched {
+		return
+	}
+	ev.launched = true
+	for i := range ev.MenuBars {
 		go func(v MenuBar) {
 			defer func() {
-				v.drawing = true
 				v.draw()
-				v.drawing = false
 			}()
 			for {
 
+				// This goroutine ONLY sends screen input to the "widgetcontroller.Input" channel
+				// It only doesn't hang if your application uses it. It can be ignored.
+				// The widgetcontroller Input channel can be listened to with: for { select { case in := <- wc.Input: } }
 				go func() {
-					//	log.Println("EventHandler: Listening to key/mouse events")
-
 					for {
 						req := v.screen.PollEvent()
 						if req == nil {
-							//	log.Println("EventHandler: screen PollEvent is nil, leaving.")
 							return
 						}
-						//						log.Println("EventHandler: Sending event to widgetcontroller:" + fmt.Sprintf("%T", req))
-
+						// Send all input to WidgetController Input
 						v.widgetcontroller.Input <- req
-
 					}
 				}()
 
-				log.Println("Playing Event Handler:", v.title)
 				s := v.handleEvents()
-				log.Printf("%q returned %q\n", v.title, s)
 				if s == "end" || s == "quit" {
-					log.Println("EventHandler got END")
 					return
 				}
 				if s == "already" {
-
 					continue
-					//					return
 				}
 
-				//v.screen.Show()
 				event := v.GetScreen().PollEvent()
 				if event == nil {
-					log.Println("EventHandler is nil, this goroutine is leaving.")
+					//log.Println("EventHandler is nil, this goroutine is leaving.")
 					v.drawing = false
 					return
 				}
-				log.Println("Got event, sending to ev.Input")
+				//log.Println("Got event, sending to ev.Input")
 				ev.Input <- event
 
 			}
-		}(v)
+		}(ev.MenuBars[i])
 
 	}
 
@@ -110,22 +103,31 @@ func (ev *EventHandler) Launch() {
 
 //AddMenuBar to an ev
 func (ev *EventHandler) AddMenuBar(m *MenuBar) {
+	ev.mu.Lock()
+	defer ev.mu.Unlock()
 	m.events = ev
 	ev.MenuBars = append(ev.MenuBars, *m)
+
 }
 
 //AddScrollFrame to an ev
 func (ev *EventHandler) AddScrollFrame(s *ScrollFrame) {
+	ev.mu.Lock()
+	defer ev.mu.Unlock()
 	ev.ScrollFrames = append(ev.ScrollFrames, *s)
 }
 
 //AddEntry to an ev
 func (ev *EventHandler) AddEntry(e *Entry) {
+	ev.mu.Lock()
+	defer ev.mu.Unlock()
 	ev.EntryItems = append(ev.EntryItems, *e)
 }
 
 //Quit to all channels, return to STDOUT
 func (ev *EventHandler) Quit() {
+	ev.mu.Lock()
+	defer ev.mu.Unlock()
 	for _, v := range ev.quitchannels {
 		v <- 1
 	}

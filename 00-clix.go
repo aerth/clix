@@ -79,3 +79,6 @@ func load(s tcell.Screen) tcell.Screen {
 
 	return screen
 }
+
+// Widget all of them
+type Widget interface{}

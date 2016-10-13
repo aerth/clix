@@ -11,13 +11,14 @@ import (
 
 // Entry is a shell style input bar with a multiline prompt and optional title.
 type Entry struct {
+	Widget
 	title      string
 	subtitle   string
 	prompt     []string
 	IsPassword bool
 	screen     tcell.Screen
 	scroller   ScrollFrame
-	parent     MenuBar
+	parent     Widget
 	maxwidth   int
 	Input      chan interface{}
 	Output     chan interface{}

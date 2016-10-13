@@ -11,8 +11,7 @@ import (
 /*
 Test going in and out of the screen and back to STDOUT.
 Test we dont mess up the terminal
-Test we dont break API
-
+Test we dont break API by changing function names etc
 */
 func init() {
 	null, _ := os.OpenFile(os.DevNull, os.O_WRONLY, os.ModeAppend)
@@ -57,7 +56,10 @@ func TestMenuBar(t *testing.T) {
 		break
 	}
 	fmt.Println("Got:", str)
-
+	if str != "GOLD" {
+		fmt.Println("Round two Got:", str)
+		t.Fail()
+	}
 	mb2 := NewMenuBar(nil)
 	mb2.SetTitle("Select GOLD")
 	mb2.NewItem("Two One")
@@ -71,17 +73,20 @@ func TestMenuBar(t *testing.T) {
 		select {
 		case l := <-events2.Input:
 			fmt.Println(l)
-			str = l.(string)
+			str2 = l.(string)
 			break
 		case l := <-events2.Output:
-			str = l.(string)
+			str2 = l.(string)
 			fmt.Println(l)
 			break
 		}
 		mb2.GetScreen().Fini()
 		break
 	}
-	fmt.Println("Round two Got:", str2)
+	if str2 != "GOLD" {
+		fmt.Println("Round two Got:", str2)
+		t.FailNow()
+	}
 }
 
 func TestEntry(t *testing.T) {

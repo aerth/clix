@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"sync"
 	"time"
 
 	"github.com/gdamore/tcell"
@@ -25,6 +26,7 @@ var styleDefault = style2
 
 // MenuBar is a container for MenuItems
 type MenuBar struct {
+	Widget
 	Selection int
 	title     string // Set with m.SetTitle(string)
 	zindex    int
@@ -43,6 +45,7 @@ type MenuBar struct {
 	mostitems        int
 	drawing          bool
 	menumap          map[string]func() interface{}
+	mu               sync.Mutex
 }
 
 // MenuItem is a selectable menu item
@@ -106,11 +109,8 @@ func (m *MenuBar) Present(clear bool) {
 // draw the MenuBar once
 func (m *MenuBar) draw() {
 
-	if !m.drawing {
-
-		return
-	}
-
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	if m.events == nil {
 		log.Println("not drawing. nil events")
 		return
@@ -286,7 +286,7 @@ func (m *MenuBar) NewItem(label string) (*MenuItem, error) {
 }
 
 // GetChild by label name
-func (m MenuBar) GetChild(label string) (*MenuItem, error) {
+func (m *MenuBar) GetChild(label string) (*MenuItem, error) {
 	for _, v := range m.Children {
 		if v.Label == label {
 			return &v, nil
@@ -296,7 +296,7 @@ func (m MenuBar) GetChild(label string) (*MenuItem, error) {
 }
 
 // GetChildNumber by selection number
-func (m MenuBar) GetChildNumber(sel int) (*MenuItem, error) {
+func (m *MenuBar) GetChildNumber(sel int) (*MenuItem, error) {
 	log.Println("Trying", sel, len(m.Children))
 	if sel > len(m.Children) {
 		return nil, errors.New("Too far")

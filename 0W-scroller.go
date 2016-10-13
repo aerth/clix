@@ -16,6 +16,7 @@ import (
 
 // ScrollFrame has a scroller to read through text.
 type ScrollFrame struct {
+	Widget
 	title       string
 	Buffer      *bytes.Buffer
 	loc         int // since buffer doesn't know about screen size this is char num
@@ -70,12 +71,12 @@ type ToolButton struct {
 	Parent *ToolBar
 }
 
-// EnterPrompt returns a single ENTER (Not in a screen, just stdout fmt.Println)
+// EnterPrompt returns a single ENTER (Not in a 'screen', just stdin fmt.Println)
 func EnterPrompt(prompt ...string) string {
 	return EntryOS(prompt...)
 }
 
-// EntryOS lol
+// EntryOS returns a single ENTER (Not in a 'screen', just stdin fmt.Println)
 func EntryOS(prompt ...string) string {
 	if len(prompt) > 0 {
 		fmt.Println(prompt)
@@ -87,14 +88,14 @@ func EntryOS(prompt ...string) string {
 		break
 	}
 	if err := scanner.Err(); err != nil {
-		fmt.Fprintln(os.Stderr, "reading standard input:", err)
+		fmt.Fprintln(os.Stderr, "reading input:", err)
 	}
 	return str
 }
 
-// AttachScroller truncates old buffer and replaces with s
+// AttachScroller truncates old buffer and replaces with s,
+// a menubar can have at most one scroller, a scroller can have at most one parent.
 func (m *MenuBar) AttachScroller(s *ScrollFrame) {
-
 	m.scroller = s
 	m.scroller.parent = "MenuBar"
 	m.scroller.parentmenu = m
