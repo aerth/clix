@@ -1,5 +1,7 @@
 package clix
 
+// WIDGET: Scroller
+
 import (
 	"bufio"
 	"bytes"

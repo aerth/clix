@@ -1,5 +1,7 @@
 package clix
 
+// WIDGET: Entry
+
 import (
 	"log"
 	"os"
@@ -258,10 +260,11 @@ func (e *Entry) PresentMinimal(input, ch chan interface{}) {
 // Present an Entry widget
 func (e *Entry) Present() string {
 	if e.screen == nil {
-		e.screen = Load(nil)
+		e.screen = load(nil)
 	} else {
-		log.Println("Notn il screen")
+		log.Println("Not nil screen")
 	}
+	defer e.screen.Fini()
 
 	prompt := e.prompt
 

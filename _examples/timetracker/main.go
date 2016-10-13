@@ -107,7 +107,7 @@ NewReport:
 	var err error
 	var clockout, clockin time.Time
 	if looped == 1 {
-		s = clix.Load(nil)
+		s = clix.load(nil)
 	}
 	s.Clear()
 

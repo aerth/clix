@@ -1,5 +1,7 @@
 package clix
 
+// WIDGET: MenuBar
+
 import (
 	"errors"
 	"fmt"
@@ -8,6 +10,8 @@ import (
 
 	"github.com/gdamore/tcell"
 )
+
+const quitkey = "quit"
 
 // ToolBar spans all of x and contains ToolButtons
 type ToolBar struct {
@@ -82,25 +86,25 @@ func (m *MenuBar) AddFunc(key tcell.Key, f func(interface{}) interface{}, data .
 type WidgetController struct {
 	MenuBar       MenuBar
 	ScrollFrame   ScrollFrame
-	MainMenu      MainMenu
+	TitleMenu     TitleMenu
 	x, y          int
 	width, height int
 	Input, Output chan interface{}
 }
 
-// Present returns a new WidgetController and Draws the MenuBar.
+// Present returns a new WidgetController and draws the MenuBar.
 func (m *MenuBar) Present(clear bool) {
 	if clear {
 		m.screen.Clear()
 	}
 	m.drawing = true
-	m.Draw()
+	m.draw()
 	m.drawing = false
 	return
 }
 
-// Draw the MenuBar once
-func (m *MenuBar) Draw() {
+// draw the MenuBar once
+func (m *MenuBar) draw() {
 
 	if !m.drawing {
 
@@ -121,9 +125,9 @@ func (m *MenuBar) Draw() {
 
 	}
 
-	log.Println("Drawing a MenuBar", m.title)
+	log.Println("drawing a MenuBar", m.title)
 	if m.screen == nil {
-		m.screen = Load(m.screen)
+		m.screen = load(m.screen)
 	}
 
 	xmax, ymax := m.screen.Size()
@@ -198,7 +202,7 @@ func (m *MenuBar) GetScreen() tcell.Screen {
 }
 
 // GetScreen ..
-func (m *MainMenu) GetScreen() tcell.Screen {
+func (m *TitleMenu) GetScreen() tcell.Screen {
 	return m.screen
 }
 
@@ -238,7 +242,7 @@ func NewMenuBar(s tcell.Screen) *MenuBar {
 	if s != nil {
 		m.screen = s
 	} else {
-		m.screen = Load(nil)
+		m.screen = load(nil)
 	}
 	wc := new(WidgetController)
 	wc.Input = make(chan interface{})
@@ -355,7 +359,7 @@ func (m *MenuBar) Clock() {
 // 	// Create a screen if we aren't already in one. (Or if it has previously been closed by screen.Fini())
 //
 // 	if m.screen == nil {
-// 		m.screen = Load(nil)
+// 		m.screen = load(nil)
 // 	}
 //
 // 	for {
@@ -405,12 +409,12 @@ func (m *MenuBar) handleEvents() string {
 
 		defer func() {
 			m.screen.Clear()
-			m.events.Input <- "quit"
+			m.events.Input <- quitkey
 			m.drawing = false
 		}()
 
 		m.drawing = true
-		m.Draw()
+		m.draw()
 		// We need a widgetcontroller to continue
 		if m.widgetcontroller == nil {
 			log.Println("nil WidgetController, waiting one second:", m.title)
@@ -421,7 +425,7 @@ func (m *MenuBar) handleEvents() string {
 		select {
 		case <-time.After(10 * time.Second):
 			log.Println("Refreshing menu (10 sec)")
-			m.Draw()
+			m.draw()
 			continue
 		case in := <-m.widgetcontroller.Input:
 			switch in.(type) {
@@ -517,8 +521,14 @@ func (m *MenuBar) handleEvents() string {
 
 							return s
 						}
+						if len(m.Children) == 0 {
+							m.events.Output <- quitkey
+							m.events.Input <- quitkey
+							return quitkey
+
+						}
 						if m.Selection > len(m.Children) || m.Selection < 0 {
-							//m.Draw(screen, false)// hack
+							//m.draw(screen, false)// hack
 							continue
 						}
 
@@ -542,22 +552,22 @@ func (m *MenuBar) handleEvents() string {
 						if m.zindex != 0 {
 							if m.Siblings[m.zindex-1].Selection < 1 {
 								m.Siblings[m.zindex-1].Selection = len(m.Siblings[m.zindex-1].Children) - 1
-								//m.Draw(screen, false)// hack
+								//m.draw(screen, false)// hack
 								continue
 							}
 
 							m.Siblings[m.zindex-1].Selection--
-							//m.Draw(screen, false)// hack
+							//m.draw(screen, false)// hack
 							continue
 						}
 
 						if m.Selection < 1 {
 							m.Selection = len(m.Children) - 1
-							//m.Draw(screen, false)// hack
+							//m.draw(screen, false)// hack
 							continue
 						}
 						m.Selection--
-						//m.Draw(screen, false)// hack
+						//m.draw(screen, false)// hack
 						continue
 					case tcell.KeyDown:
 
@@ -565,21 +575,21 @@ func (m *MenuBar) handleEvents() string {
 						if m.zindex != 0 {
 							if m.Siblings[m.zindex-1].Selection > len(m.Siblings[m.zindex-1].Children)-2 {
 								m.Siblings[m.zindex-1].Selection = 0
-								//m.Draw(screen, false)// hack
+								//m.draw(screen, false)// hack
 								continue
 							}
 							m.Siblings[m.zindex-1].Selection++
-							//m.Draw(screen, false)// hack
+							//m.draw(screen, false)// hack
 							continue
 						}
 						if m.Selection > len(m.Children)-2 {
 							m.Selection = 0
-							//m.Draw(screen, false)// hack
+							//m.draw(screen, false)// hack
 							continue
 						}
 
 						m.Selection++
-						//m.Draw(screen, false)// hack
+						//m.draw(screen, false)// hack
 						continue
 					case tcell.KeyLeft:
 						if len(m.Siblings) == 0 {
@@ -627,8 +637,8 @@ func (m *MenuBar) handleEvents() string {
 
 						continue
 					case tcell.KeyEscape, tcell.KeyCtrlQ, tcell.KeyCtrlC:
-						m.events.Output <- "quit"
-						return "quit"
+						m.events.Output <- quitkey
+						return quitkey
 					}
 
 					// Since the key has not been assigned,

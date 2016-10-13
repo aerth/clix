@@ -50,7 +50,7 @@ type Coordinates struct {
 // NewWindow first step to app.
 func NewWindow(title string) *Window {
 	w := new(Window)
-	w.screen = Load(nil)
+	w.screen = load(nil)
 	w.Input = make(chan interface{})
 	w.Output = make(chan interface{})
 	w.title = title
@@ -87,7 +87,7 @@ func (c Coordinates) Draw() {
 }
 
 // Load Returns new tcell screen
-func Load(s tcell.Screen) tcell.Screen {
+func load(s tcell.Screen) tcell.Screen {
 	if s != nil {
 		if s.Colors() != 0 {
 			return s

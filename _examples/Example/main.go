@@ -99,7 +99,7 @@ func doMenuBar() {
 	/*
 		events.Launch begins a couple goroutines to monitor input.
 		To close it, send "end" string to events.Input channel
-		To utilize it, use AddMenuBar or AddEntry** or AddMainMenu**
+		To utilize it, use AddMenuBar or AddEntry** or AddTitleMenu**
 	*/
 	events.AddMenuBar(menu)
 	events.Launch()
@@ -127,7 +127,7 @@ func doMenuBar() {
 				msg = s
 				doMenuBar()
 
-			case "MainMenu Demo":
+			case "TitleMenu Demo":
 
 				doTitleMenu()
 
@@ -152,7 +152,7 @@ Done:
 }
 
 func doTitleMenu() {
-	t := clix.NewMainMenu()
+	t := clix.NewTitleMenu()
 	q := `
 
 	Greetings!

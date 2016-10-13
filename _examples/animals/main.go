@@ -19,8 +19,8 @@ func main() {
 	// clix.EnterPrompt
 	_ = clix.EnterPrompt("Please Press Enter or Ctrl+C")
 	events := clix.NewEventHandler()
-	// clix.NewMainMenu
-	mm := clix.NewMainMenu()
+	// clix.NewTitleMenu
+	mm := clix.NewTitleMenu()
 	mm.SetTitle("ANIMALS")
 	mm.AddLine("Welcome to Animals")
 	mm.AddLine("Press ENTER to continue")

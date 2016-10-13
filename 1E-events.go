@@ -1,7 +1,25 @@
+// EVENTS: EventHandler
+
+/*
+
+The EventHandler is the center of clix.
+When the user moves the mouse, or types on the keyboard, a stream of *Events move through the Input chan.
+When the menu is finished, a single selection will be sent to the Output chan. It may be "quit", or a menu item.
+With the Input events coming in, you can make things happen based on user input.
+For example, a game.
+	A map shows obstacles and an exit. A click moves the player in that direction. Bad click falls down.
+	User presses 30,30, receives a free puppy.
+	User presses 29,29, falls in a ditch.
+	Meanwhile, goroutines can update the visible cells on the terminal, displaying menus and maps.
+
+Or a tool.
+	User is presented with 5 options, chooses the 4th one, labeled "new".
+	if out == "new" { menu2.Show() }
+*/
+
 package clix
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/gdamore/tcell"
@@ -30,31 +48,30 @@ func NewEventHandler() *EventHandler {
 	return ev
 }
 
-// Launch a eventhandler (in two go routines)
+// Launch starts the attached widgets.
 func (ev *EventHandler) Launch() {
+	for _, v := range ev.MenuBars {
 
-	for i, v := range ev.MenuBars {
-
-		log.Printf("Launching Event Handler %v of %v\n", i+1, len(ev.MenuBars))
+		//log.Printf("Launching Event Handler %v of %v\n", i+1, len(ev.MenuBars))
 
 		go func(v MenuBar) {
 			defer func() {
 				v.drawing = true
-				v.Draw()
+				v.draw()
 				v.drawing = false
 			}()
 			for {
 
 				go func() {
-					log.Println("EventHandler: Listening to key/mouse events")
+					//	log.Println("EventHandler: Listening to key/mouse events")
 
 					for {
 						req := v.screen.PollEvent()
 						if req == nil {
-							log.Println("EventHandler: screen PollEvent is nil, leaving.")
+							//	log.Println("EventHandler: screen PollEvent is nil, leaving.")
 							return
 						}
-						log.Println("EventHandler: Sending event to widgetcontroller:" + fmt.Sprintf("%T", req))
+						//						log.Println("EventHandler: Sending event to widgetcontroller:" + fmt.Sprintf("%T", req))
 
 						v.widgetcontroller.Input <- req
 
@@ -64,7 +81,7 @@ func (ev *EventHandler) Launch() {
 				log.Println("Playing Event Handler:", v.title)
 				s := v.handleEvents()
 				log.Printf("%q returned %q\n", v.title, s)
-				if s == "end" {
+				if s == "end" || s == "quit" {
 					log.Println("EventHandler got END")
 					return
 				}
@@ -107,7 +124,7 @@ func (ev *EventHandler) AddEntry(e *Entry) {
 	ev.EntryItems = append(ev.EntryItems, *e)
 }
 
-//Quit to all channels
+//Quit to all channels, return to STDOUT
 func (ev *EventHandler) Quit() {
 	for _, v := range ev.quitchannels {
 		v <- 1

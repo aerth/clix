@@ -139,15 +139,3 @@ func clearchar(screen tcell.Screen, x, y, num int) {
 		}
 	}
 }
-
-//
-// func dobackspace() {
-// 	//	testconst()
-// 	if numchar <= 1 {
-// 		return
-// 	}
-// 	numchar--
-// 	screen.ShowCursor(1+numchar, ymax-1+line)
-// 	screen.Show()
-//
-// }

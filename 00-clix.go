@@ -23,15 +23,15 @@ fuzzy find
 hotkey for menu :
 	clix.HotKeys().Set(tcell.Key, clix.MenuItem) {}
 	clix.HotKeys().Remove(tcell.Key) error { return nil }
-
 grid buttons
 single char buttons
 outbar status bar
 more widgets
-	filepicker
-	ascii pic loader
-
-	KEYBOARDLESS KEY ENTRY ( just arrows and mice to enter passwords!?)
+filepicker
+mutex locks
+thread control (minimal num)
+ascii pic loader
+KEYBOARDLESS KEY ENTRY ( just arrows and mice to enter passwords!?)
 
 */
 
@@ -41,8 +41,8 @@ func StdOut(screen tcell.Screen) {
 	screen.Fini()
 }
 
-// Load Returns new tcell screen
-func Load(s tcell.Screen) tcell.Screen {
+// load Returns new tcell screen if necessary
+func load(s tcell.Screen) tcell.Screen {
 
 	if s != nil {
 		if s.Colors() != 0 {
@@ -50,7 +50,6 @@ func Load(s tcell.Screen) tcell.Screen {
 		}
 		s.Fini()
 	}
-
 	screen := s
 	if s == nil {
 		var err error

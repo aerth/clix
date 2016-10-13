@@ -1,5 +1,7 @@
 package clix
 
+// WIDGET: TitleMenu
+
 import (
 	"flag"
 	"log"
@@ -9,8 +11,8 @@ import (
 	"github.com/gdamore/tcell"
 )
 
-// MainMenu lol
-type MainMenu struct {
+// TitleMenu is a simple "press any key to continue" screen to display information
+type TitleMenu struct {
 	screen   tcell.Screen
 	lines    []string
 	title    string
@@ -19,14 +21,24 @@ type MainMenu struct {
 	funcmap  FuncMap
 	funcmap2 map[tcell.Key]interface{}
 	Output   chan interface{}
+	status   statuscode
 }
 
-// FuncMap lol
+type statuscode int
+
+const (
+	offline statuscode = iota
+	online
+	minimized
+	destroyed
+)
+
+// FuncMap maps functions to a tcell.Key
 type FuncMap map[tcell.Key]func(interface{}) interface{}
 
-// NewMainMenu contains MenuItems
-func NewMainMenu() *MainMenu {
-	mm := new(MainMenu)
+// NewTitleMenu creates a TitleMenu
+func NewTitleMenu() *TitleMenu {
+	mm := new(TitleMenu)
 	mm.funcmap = map[tcell.Key]func(interface{}) interface{}{}
 	mm.funcmap[tcell.KeyCtrlC] = func(interface{}) interface{} {
 		mm.GetScreen().Fini()
@@ -52,41 +64,41 @@ func NewMainMenu() *MainMenu {
 	return mm
 }
 
-//SetTitle lol
-func (m *MainMenu) SetTitle(title string) {
+//SetTitle to the titlemenu
+func (m *TitleMenu) SetTitle(title string) {
 	m.title = title
 	return
 }
 
 // AddLine to the splash menu
-func (m *MainMenu) AddLine(line string) {
+func (m *TitleMenu) AddLine(line string) {
 	m.lines = append(m.lines, line)
 }
 
 // AddLines to the splash menu (convert ascii art with strings.Split(art, "\n"))s
-func (m *MainMenu) AddLines(line []string) {
+func (m *TitleMenu) AddLines(line []string) {
 	m.lines = append(m.lines, line...)
 }
 
 // AddFunc to the FuncMap
-func (m *MainMenu) AddFunc(key tcell.Key, f func(interface{}) interface{}, data ...interface{}) {
+func (m *TitleMenu) AddFunc(key tcell.Key, f func(interface{}) interface{}, data ...interface{}) {
 
 	m.funcmap[key] = f
 	m.funcmap2[key] = data[0]
 }
 
 // SetJustifyLeft left
-func (m *MainMenu) SetJustifyLeft() {
+func (m *TitleMenu) SetJustifyLeft() {
 	m.justify = true
 }
 
 // SetJustifyRight right
-func (m *MainMenu) SetJustifyRight() {
+func (m *TitleMenu) SetJustifyRight() {
 	m.justify = false
 }
 
 // Clock for a menu
-func (m *MainMenu) Clock() {
+func (m *TitleMenu) Clock() {
 	go func() {
 		var px int
 		for {
@@ -109,10 +121,10 @@ func (m *MainMenu) Clock() {
 	}()
 }
 
-// Present a MainMenu to the screen.
+// Present a TitleMenu to the screen.
 // It's contents are made from lines.
 // m.AddLines(strings.Split(essay, "\n"))
-func (m *MainMenu) Present() interface{} {
+func (m *TitleMenu) Present() interface{} {
 	if m.title != "" {
 
 		log.Printf("Welcome to %q.\n", m.title)
@@ -121,7 +133,7 @@ func (m *MainMenu) Present() interface{} {
 	}
 	m.Clock()
 	if m.screen == nil {
-		m.screen = Load(nil)
+		m.screen = load(nil)
 	}
 	xmax, ymax := m.screen.Size()
 	if m.title != "" {
@@ -147,14 +159,14 @@ func (m *MainMenu) Present() interface{} {
 	return m.loop()
 }
 
-//Loop lol
-func (m *MainMenu) loop() interface{} {
+// TitleMenu loop
+func (m *TitleMenu) loop() interface{} {
 	for {
 		ev := m.screen.PollEvent()
 		switch ev := ev.(type) {
 		case *tcell.EventKey: // User pressed a key or keycombo
 			if m.funcmap[ev.Key()] != nil {
-				log.Println("Found funcmap match for MainMenu")
+				log.Println("Found funcmap match for TitleMenu")
 				out := m.funcmap[ev.Key()](m.funcmap2[ev.Key()])
 				log.Println("interesting", out)
 
