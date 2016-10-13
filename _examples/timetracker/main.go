@@ -118,9 +118,10 @@ NewReport:
 		//		_, ymax := s.Size()
 		inentry := clix.NewEntry(s)
 		inentry.AddPrompt("[Clock In] Total: " + curtime.String())
-		inentry.SetTitle(version)
-		inentry.SetSubtitle(*outflag)
+		inentry.SetTitle("Timetable " + version)
+		inentry.SetSubtitle("Saving to: " + *outflag)
 		inentry.AddPrompt("Formatting Help: 3:15pm, 15:15, or 1515")
+		inentry.AddPrompt("Insert CLOCK-IN time")
 		if len(timetable) != 0 {
 			inentry.AddPrompt("When finished, type 'stop'")
 		}
@@ -196,6 +197,7 @@ NewReport:
 		oentry := clix.NewEntry(s)
 		oentry.SetTitle(version)
 		oentry.SetSubtitle(*outflag)
+		oentry.AddPrompt("Insert CLOCK-OUT time")
 		oentry.AddPrompt("[Clock Out] Total: " + curtime.String())
 		oentry.AddPrompt("Formatting Help: 3:15pm, 15:15, or 1515")
 		oentry.AddPrompt("[Clock In: " + period.In.Format(time.Kitchen) + "]")
@@ -317,11 +319,6 @@ func GenerateReport() (string, string) {
 	if *outflag == "/dev/null" {
 		*outflag = os.DevNull
 	}
-
-	// // Print to Stdout
-	// fmt.Println(b.String())
-
-	// Write file
 	err := ioutil.WriteFile(*outflag, b.Bytes(), 0700)
 	if err != nil {
 		log.Println(err)
