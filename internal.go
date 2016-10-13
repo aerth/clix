@@ -1,14 +1,9 @@
 package clix
 
-import (
-	"log"
-
-	"github.com/gdamore/tcell"
-)
+import "github.com/gdamore/tcell"
 
 // for drawing multiple menus (using m.AddSibling)
 func (m *MenuBar) drawnextto(parent *MenuBar, sibnum int) {
-	log.Println("Drawing Sibling MenuBar")
 	xmax, ymax := m.screen.Size()
 	var ts = 0
 	if parent.title != "" {

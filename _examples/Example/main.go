@@ -60,13 +60,12 @@ func doMenuBar() {
 
 	menu2 := clix.NewMenuBar(menu.GetScreen())
 	menu3 := clix.NewMenuBar(menu.GetScreen())
-	menu4 := clix.NewMenuBar(menu.GetScreen())
+	//	menu4 := clix.NewMenuBar(menu.GetScreen())
 
-	menu2.NewItem("Entry Demo")
+	menu2.NewItem("Launch Entry Demo")
 	menu3.NewItem("one")
 	menu3.NewItem("two2")
 	menu3.NewItem("three")
-	menu4.NewItem("MainMenu Demo")
 
 	menu.SetTitle("menunum1")
 	menu2.SetTitle("menunum2")
@@ -78,7 +77,6 @@ func doMenuBar() {
 
 	menu.AddSibling(menu2)
 	menu.AddSibling(menu3)
-	menu.AddSibling(menu4)
 
 	var mainout interface{}
 
@@ -112,6 +110,7 @@ func doMenuBar() {
 	case l := <-events.Output:
 		log.Println("Output:", l)
 		mainout = l
+		goto Done
 		switch l.(type) {
 		case string:
 			switch l.(string) {
@@ -121,7 +120,7 @@ func doMenuBar() {
 
 			case "fun":
 
-			case "Entry Demo":
+			case "Launch Entry Demo":
 
 				s := entrydemo(menu.GetScreen())
 				mainout = s

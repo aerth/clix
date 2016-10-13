@@ -6,7 +6,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/aerthlib/filer"
 	"github.com/gdamore/tcell"
 )
 
@@ -56,11 +55,9 @@ func (m *MenuBar) SetMessage(s string) (sel string) {
 // Connect a function to a menu item, not that different than AddFunc
 func (m *MenuBar) Connect(s string, f func() interface{}) (sel string) {
 	if m.menumap == nil {
-		panic("MenuMap is Nil")
+		m.menumap = map[string]func() interface{}{}
 	}
-
 	m.menumap[s] = f
-	log.Println(m.menumap)
 	return
 }
 
@@ -68,10 +65,8 @@ func (m *MenuBar) Connect(s string, f func() interface{}) (sel string) {
 func (m *MenuBar) AddEntry(menuLabel string, e *Entry) {
 	m.NewItem("Entry" + menuLabel)
 	m.Connect("Entry"+menuLabel, func() interface{} {
-		log.Println("Doing it!!!!")
-
 		m.entrybar.PresentMinimal(m.widgetcontroller.Input, m.events.Output)
-		return "wo0t"
+		return "gold"
 	})
 
 	m.entrybar = e
@@ -83,11 +78,7 @@ func (m *MenuBar) AddFunc(key tcell.Key, f func(interface{}) interface{}, data .
 	m.funcmap2[key] = data
 }
 
-func logz(s string) {
-	filer.Append("debug-Load", []byte(time.Now().String()+s+"\n"))
-}
-
-// WidgetController When presenting a widget, it returns one as an output.
+// WidgetController is able to close widgets, and receive widget input.
 type WidgetController struct {
 	MenuBar       MenuBar
 	ScrollFrame   ScrollFrame
@@ -99,7 +90,6 @@ type WidgetController struct {
 
 // Present returns a new WidgetController and Draws the MenuBar.
 func (m *MenuBar) Present(clear bool) {
-
 	if clear {
 		m.screen.Clear()
 	}
@@ -187,7 +177,7 @@ func (m *MenuBar) Draw() {
 
 // MENU ITEM
 
-// AddSibling lol
+// AddSibling next to a menu
 func (m *MenuBar) AddSibling(s *MenuBar) {
 	m.Siblings = append(m.Siblings, *s)
 	m.mostitems = len(m.Children)
@@ -414,8 +404,8 @@ func (m *MenuBar) handleEvents() string {
 		// }
 
 		defer func() {
-			m.Draw()
-			m.screen.Show()
+			m.screen.Clear()
+			m.events.Input <- "quit"
 			m.drawing = false
 		}()
 
