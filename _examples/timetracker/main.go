@@ -106,17 +106,17 @@ NewReport:
 	var ins, o string
 	var err error
 	var clockout, clockin time.Time
-	if looped == 1 {
-		s = clix.load(nil)
+	if looped > 1 {
+		s.Clear()
 	}
-	s.Clear()
 
 	for i := 0; ; i++ { // Break loop with "stop" command.
 		var period WorkPeriod
 
 	ClockIn:
 		//		_, ymax := s.Size()
-		inentry := clix.NewEntry(s)
+		inentry := clix.NewEntry(nil)
+		s = inentry.GetScreen()
 		inentry.AddPrompt("[Clock In] Total: " + curtime.String())
 		inentry.SetTitle("Timetable " + version)
 		inentry.SetSubtitle("Saving to: " + *outflag)
@@ -189,7 +189,7 @@ NewReport:
 	ClockOut:
 		//	inerr = nil
 		//		_, ymax = s.Size()
-		s.Clear() // dont need this
+		//	s.Clear() // dont need this
 		// if outerr != nil {
 		// 	clix.Type(s, 0, ymax-3, 2, outerr.Error())
 		// 	s.Show()
