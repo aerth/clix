@@ -7,14 +7,19 @@ import (
 	"github.com/gdamore/tcell"
 )
 
-// TypeUI to the special parts
-func TypeUI(screen tcell.Screen, style tcell.Style, startx, starty int, s string) (endx, endy int) {
+// Type to a screen, one line no wrap.
+// If len(s) > ymax-starty, s will go off the screen.
+func Type(scr tcell.Screen, startx int, starty int, style tcell.Style, s string) {
+	x, y := startx, starty
+	for i := 0; i < len(s); i++ {
+		scr.SetCell(x+i, y, style, rune(s[i]))
+	}
+}
 
+// TypeUI is like Type, but writes to the special parts, such as ymax-1
+func TypeUI(screen tcell.Screen, style tcell.Style, startx, starty int, s string) (endx, endy int) {
 	posx, posy := startx, starty
 	paragraph := []rune(s)
-	// if *verbose {
-	// 	log.Println("TypeUI", s, "to", posx, posy)
-	// }
 	xmax, ymax := screen.Size()
 	for _, letter := range paragraph {
 		if posx == xmax-1 {
@@ -32,16 +37,9 @@ func TypeUI(screen tcell.Screen, style tcell.Style, startx, starty int, s string
 	return posx, posy
 }
 
-// Type to a screen, one line no wrap
-func Type(scr tcell.Screen, startx int, starty int, style tcell.Style, s string) {
-	x, y := startx, starty
-	for i := 0; i < len(s); i++ {
-		scr.SetCell(x+i, y, style, rune(s[i]))
-	}
-}
-
-// TypeWriter to a screen, all lines with wrap
-func TypeWriter(scr tcell.Screen, startx int, starty int, style tcell.Style, s string) {
+// TypeWriter to a screen starting at coordinates: startx,starty.
+// All lines are wrapped, so don't assume endy is the same as starty
+func TypeWriter(scr tcell.Screen, startx int, starty int, style tcell.Style, s string) (endy int) {
 	xmax, ymax := scr.Size()
 
 	x, y := startx, starty
@@ -59,9 +57,10 @@ func TypeWriter(scr tcell.Screen, startx int, starty int, style tcell.Style, s s
 		scr.SetCell(x, y, style, rune(s[i]))
 	}
 	scr.Show()
+	return y
 }
 
-// Eat eats the screen at timing. A good timing is 500, 50, or 1 or 0.
+// Eat eats the screen with random runes at (timing). A good timing is 500, 50, or 1 or 0.
 func Eat(screen tcell.Screen, timing int) {
 	if timing < 0 {
 		timing = 500
@@ -78,7 +77,7 @@ func Eat(screen tcell.Screen, timing int) {
 	}
 }
 
-// UnEat eats the screen at timing. A good timing is 500, 50, or 1 or 0.
+// UnEat gradually clears the screen. A good timing is 500, 50, or 1 or 0.
 func UnEat(screen tcell.Screen, timing int) {
 	if timing < 0 {
 		timing = 500

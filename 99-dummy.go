@@ -1,7 +1,23 @@
 package clix
 
-// LongDummyText is for testing the scroller. It takes up the rest of this file.
-var LongDummyText = `
+// Fill is a testing mechanism for ScrollFrame.
+// It should/will probably be placed in the test suite.
+/*
+  menu := clix.NewMenuBar(nil)
+  scroller := clix.NewScrollFrame("Titlescroll")
+  menu.NewItem("Green")
+  menu.NewItem("Gold")
+  menu.NewItem("Red")
+  menu.AttachScroller(scroller)
+  scroller.Buffer.WriteString(clix.Fill())
+
+*/
+func Fill() string {
+	return longDummyText
+}
+
+// longDummyText is for testing the scroller. It takes up the rest of this file.
+var longDummyText = `
 
 ...
 Go

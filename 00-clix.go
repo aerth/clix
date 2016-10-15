@@ -1,10 +1,48 @@
 // Package clix is cui widget library like gtk for your terminal
+/*
+
+With clix library, you can quickly create programs with a command-line user interface.
+Your program can accept user input with the available Widget types.
+
+Widgets that are currently active:
+
+	Entry - similar to a shell, accepts a line of user input
+	MenuBar - up, down, left, right selection menu
+	Scroller - a large buffer of text that is able to be scrolled with PGUP/PGDN
+	TitleMenu - a "press any key to continue" style menu
+
+To get started, have a look at the _examples directory, and the 99_test.go file.
+
+
+Testing
+
+
+To see what clix looks like, try the test suite.
+
+run:
+	go test -v
+
+Select "HUMAN" for the interactive test.
+
+
+Library
+
+Some goals of the clix library:
+
+	Easy to use, write, read, and learn
+	Easy to implement into existing command line programs
+	A solid array of widgets, which are components that accept user input
+	Not to break your software
+
+Compatibility promise
+
+When clix 1 is released, there will be a compatibility promise
+to make sure your app doesn't break.
+
+*/
 package clix
 
-import
-//	"log"
-
-(
+import (
 	"flag"
 	"fmt"
 	"os"
@@ -33,9 +71,12 @@ thread control (minimal num)
 ascii pic loader
 KEYBOARDLESS KEY ENTRY ( just arrows and mice to enter passwords!?)
 
+
+PR welcome
+
 */
 
-// StdOut exits tcell and returns to stdout/stdin terminal
+// StdOut returns to stdout/stdin terminal, closing screen.
 func StdOut(screen tcell.Screen) {
 	screen.Clear()
 	screen.Fini()

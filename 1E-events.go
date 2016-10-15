@@ -1,11 +1,24 @@
 // EVENTS: EventHandler
 
-/*
+package clix
 
+import (
+	"context"
+	"sync"
+
+	"github.com/gdamore/tcell"
+)
+
+// EventHandler to be called in a goroutine before drawing the screen.
+/*
 The EventHandler is the center of clix.
+
 When the user moves the mouse, or types on the keyboard, a stream of *Events move through the Input chan.
+
 When the menu is finished, a single selection will be sent to the Output chan. It may be "quit", or a menu item.
+
 With the Input events coming in, you can make things happen based on user input.
+
 For example, a game.
 	A map shows obstacles and an exit. A click moves the player in that direction. Bad click falls down.
 	User presses 30,30, receives a free puppy.
@@ -16,23 +29,13 @@ Or a tool.
 	User is presented with 5 options, chooses the 4th one, labeled "new".
 	if out == "new" { menu2.Show() }
 */
-
-package clix
-
-import (
-	"sync"
-
-	"github.com/gdamore/tcell"
-)
-
-// EventHandler to be called in a goroutine before drawing the screen.
 type EventHandler struct {
 	Input        chan interface{}
 	Output       chan interface{}
-	MenuItems    []MenuItem
-	MenuBars     []MenuBar
-	EntryItems   []Entry
-	ScrollFrames []ScrollFrame
+	MenuItems    []*MenuItem
+	MenuBars     []*MenuBar
+	EntryItems   []*Entry
+	ScrollFrames []*ScrollFrame
 	Quitchan     chan int
 	screen       tcell.Screen
 	quitchannels []chan int
@@ -50,14 +53,17 @@ func NewEventHandler() *EventHandler {
 	return ev
 }
 
-// Launch fires up the attached widgets. This should be one of the first things called in your main, after attaching to a menu with ev.AddMenuBar
-func (ev *EventHandler) Launch() {
+// Launch fires up the attached widgets.
+//This should be one of the first things called in your main,
+// after attaching to ONE menu with ev.AddMenuBar
+// ctx is given to be able to 'shut er down'
+func (ev *EventHandler) Launch() (ctx context.Context) {
 	if ev.launched {
 		return
 	}
 	ev.launched = true
 	for i := range ev.MenuBars {
-		go func(v MenuBar) {
+		go func(v *MenuBar) {
 			defer func() {
 				v.draw()
 			}()
@@ -98,7 +104,7 @@ func (ev *EventHandler) Launch() {
 		}(ev.MenuBars[i])
 
 	}
-
+	return ctx
 }
 
 //AddMenuBar to an ev
@@ -106,7 +112,7 @@ func (ev *EventHandler) AddMenuBar(m *MenuBar) {
 	ev.mu.Lock()
 	defer ev.mu.Unlock()
 	m.events = ev
-	ev.MenuBars = append(ev.MenuBars, *m)
+	ev.MenuBars = append(ev.MenuBars, m)
 
 }
 
@@ -114,14 +120,14 @@ func (ev *EventHandler) AddMenuBar(m *MenuBar) {
 func (ev *EventHandler) AddScrollFrame(s *ScrollFrame) {
 	ev.mu.Lock()
 	defer ev.mu.Unlock()
-	ev.ScrollFrames = append(ev.ScrollFrames, *s)
+	ev.ScrollFrames = append(ev.ScrollFrames, s)
 }
 
 //AddEntry to an ev
 func (ev *EventHandler) AddEntry(e *Entry) {
 	ev.mu.Lock()
 	defer ev.mu.Unlock()
-	ev.EntryItems = append(ev.EntryItems, *e)
+	ev.EntryItems = append(ev.EntryItems, e)
 }
 
 //Quit to all channels, return to STDOUT

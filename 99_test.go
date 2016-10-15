@@ -4,37 +4,88 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"testing"
 	"time"
 )
 
-/*
-Test going in and out of the screen and back to STDOUT.
-Test we dont mess up the terminal
-Test we dont break API by changing function names etc
-*/
 func init() {
 	null, _ := os.OpenFile(os.DevNull, os.O_WRONLY, os.ModeAppend)
 	log.SetOutput(null)
 }
-func TestTitleMenu(t *testing.T) {
+
+func TestChoose(t *testing.T) {
+	mb := NewMenuBar(nil)
+	mb.SetTitle("Select TESTS to run!")
+	mb.NewItem("ALL")
+	mb.NewItem("MACHINE")
+	mb.NewItem("HUMAN")
+	events := NewEventHandler()
+	events.AddMenuBar(mb)
+	events.Launch()
+	var str string
+	for {
+		select {
+		case l := <-events.Input:
+			fmt.Println(l)
+			str = l.(string)
+			break
+		case l := <-events.Output:
+			str = l.(string)
+			fmt.Println(l)
+			break
+		}
+		mb.GetScreen().Fini()
+		break
+	}
+	fmt.Println("Running tests:", str)
+
+	// These tests are placed in a map,
+	// So the order they are ran are at random.
+	// This helps find issues between widgets.
+	tests := map[int]func(*testing.T){}
+	switch str {
+	case "HUMAN":
+		tests[1] = humanTitleMenu
+		tests[2] = humanMenuBar
+		tests[3] = humanEntry
+		tests[4] = humanMenuBarMulti
+	case "MACHINE":
+	case "ALL":
+		tests[1] = humanTitleMenu
+		tests[2] = humanMenuBar
+		tests[3] = humanEntry
+		tests[4] = humanMenuBarMulti
+	}
+	// Try everything twice
+	for try := 1; try <= 2; try++ {
+		for _, f := range tests {
+			f(t)
+		}
+	}
+}
+
+func humanTitleMenu(t *testing.T) {
 	mm := NewTitleMenu()
-		line1 := "Prepare to calibrate your joystick."
-		line2 := "It may feel like its a human test, but really..."
-	mm.AddLine(line1)
-		mm.AddLine(line2)
-			mm.AddLine("press any key to continue")
+	lines := `
+
+	Welcome to the clix test suite.
+
+	You have chosed "HUMAN" tests, which require human input.
+	`
+	mm.AddLines(strings.Split(lines, "\n"))
+	mm.AddLine("press any key to continue")
 	mm.Present()
 	fmt.Println("You did it.")
 	time.Sleep(1 * time.Second)
-	fmt.Println("Lets try again.")
+	fmt.Println("Lets try creating a new TitleMenu.")
 	time.Sleep(1 * time.Second)
 	mm2 := NewTitleMenu()
-	mm2.AddLine("press ENTER one more time!")
+	mm2.AddLine("press any key to continue")
 	mm2.Present()
 }
 
-func TestMenuBar(t *testing.T) {
+func humanMenuBar(t *testing.T) {
 	mb := NewMenuBar(nil)
 	mb.SetTitle("Select GOLD")
 	mb.NewItem("One")
@@ -61,7 +112,7 @@ func TestMenuBar(t *testing.T) {
 	fmt.Println("Got:", str)
 	if str != "GOLD" {
 		fmt.Println("Round two Got:", str)
-		t.Fail()
+		t.FailNow()
 	}
 	mb2 := NewMenuBar(nil)
 	mb2.SetTitle("Select GOLD")
@@ -92,7 +143,7 @@ func TestMenuBar(t *testing.T) {
 	}
 }
 
-func TestEntry(t *testing.T) {
+func humanEntry(t *testing.T) {
 	e := NewEntry(nil)
 	e.AddPrompt("Greetings, tester...")
 	e.AddPrompt("Are you testing? Type: 1")
@@ -114,5 +165,51 @@ func TestEntry(t *testing.T) {
 	if tree != "3" {
 		t.FailNow()
 	}
+
+}
+
+func humanMenuBarMulti(t *testing.T) {
+	mb := NewMenuBar(nil)
+	mb.SetTitle("Select GOLD")
+	mb.NewItem("One")
+	mb.NewItem("Two")
+	mb.NewItem("RUST")
+	mb2 := NewMenuBar(mb.GetScreen())
+	mb2.SetTitle("Select GOLD")
+	mb2.NewItem("Яабвгде")
+	mb2.NewItem("Testing")
+	mb2.NewItem("One Two")
+	mb2.NewItem("One Two Three")
+	mb2.NewItem("ԊԋԌԍԎԏԐԑԒԓԔԕԖԗ")
+	mb2.NewItem("GOLD")
+	mb.AddSibling(mb2)
+
+	events := NewEventHandler()
+	events.AddMenuBar(mb)
+	events.Launch()
+	var str string
+	for {
+		select {
+		case l := <-events.Input:
+			fmt.Println(l)
+			str = l.(string)
+			break
+		case l := <-events.Output:
+			str = l.(string)
+			fmt.Println(l)
+			break
+		}
+		mb.GetScreen().Fini()
+		break
+	}
+	fmt.Println("Got:", str)
+	if str != "GOLD" {
+		fmt.Println("Round two Got:", str)
+		t.FailNow()
+	}
+
+}
+
+func machineTest(t *testing.T) {
 
 }

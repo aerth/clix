@@ -153,57 +153,8 @@ func ScrollWriter(parent *MenuBar, scrolls []string, chars int) {
 	scr.Show()
 }
 
-// ScrollWriterV to a screen, all lines with wrap
-func ScrollWriterV(parent *MenuBar, scrolls []string, chars int) {
-	scr := parent.screen
-	xmax, ymax := scr.Size()
-
-	style := tcell.StyleDefault + 1
-	x, y := 2*(parent.MaxChars*len(parent.Children)), 2
-
-	for i := 0; i < xmax*ymax; i++ {
-		//		time.Sleep(2 * time.Millisecond)
-		x++
-		if x >= xmax-2 {
-			x = 2 * (parent.MaxChars * len(parent.Children))
-			y++
-		}
-		if y > ymax-2 {
-			y = 2
-			x = 2 * (parent.MaxChars * len(parent.Children))
-		}
-		if i > chars {
-			break
-		}
-		scr.SetCell(x, y, style, rune(0))
-	}
-
-	scr.Show()
-
-	for z, v := range scrolls {
-
-		x, y = 2*(parent.MaxChars*len(parent.Children)), 0
-		for i := 0; i < len(v); i++ {
-			//		time.Sleep(2 * time.Millisecond)
-			x++
-			if x >= xmax-2 {
-				x = 2 * (parent.MaxChars * len(parent.Children))
-				y++
-			}
-			if y > ymax-len(parent.Children) {
-				x = 2 * (parent.MaxChars * len(parent.Children))
-				break
-			}
-			// if i >  {
-			// 	break
-			// }
-			scr.SetCell(x, y+z, style3, rune(v[i]))
-		}
-	}
-	scr.Show()
-}
+// Format a string into a []string of suitable length lines, using xmax and ymax.
 func formatrune(xmax, ymax int, s string) ([]string, int) {
-
 	scanner := bufio.NewScanner(strings.NewReader(s))
 	// the border
 	ymax = ymax - 10
@@ -216,8 +167,6 @@ func formatrune(xmax, ymax int, s string) ([]string, int) {
 		scanout := scanner.Text()
 		total += len(scanout)
 		scanouts = append(scanouts, scanout)
-
 	}
-
 	return scanouts, total
 }

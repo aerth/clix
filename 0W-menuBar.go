@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"sync"
 	"time"
 
 	"github.com/gdamore/tcell"
@@ -32,8 +31,8 @@ type MenuBar struct {
 	zindex    int
 	message   string
 	//multimessage     []string
-	Children         []MenuItem
-	Siblings         []MenuBar // To have menus in parallel
+	Children         []*MenuItem
+	Siblings         []*MenuBar // To have menus in parallel
 	screen           tcell.Screen
 	scroller         *ScrollFrame
 	events           *EventHandler
@@ -45,7 +44,6 @@ type MenuBar struct {
 	mostitems        int
 	drawing          bool
 	menumap          map[string]func() interface{}
-	mu               sync.Mutex
 }
 
 // MenuItem is a selectable menu item
@@ -109,8 +107,6 @@ func (m *MenuBar) Present(clear bool) {
 // draw the MenuBar once
 func (m *MenuBar) draw() {
 
-	m.mu.Lock()
-	defer m.mu.Unlock()
 	if m.events == nil {
 		log.Println("not drawing. nil events")
 		return
@@ -183,7 +179,9 @@ func (m *MenuBar) draw() {
 
 // AddSibling next to a menu
 func (m *MenuBar) AddSibling(s *MenuBar) {
-	m.Siblings = append(m.Siblings, *s)
+
+	m.Siblings = append(m.Siblings, s)
+
 	m.mostitems = len(m.Children)
 	if len(m.Siblings) > 0 {
 		for i := range m.Siblings {
@@ -194,6 +192,7 @@ func (m *MenuBar) AddSibling(s *MenuBar) {
 		}
 		m.mostitems++
 	}
+
 }
 
 // GetScreen ..
@@ -253,7 +252,7 @@ func NewMenuBar(s tcell.Screen) *MenuBar {
 	m.funcmap = map[tcell.Key]func(interface{}) interface{}{}
 	m.funcmap2 = map[tcell.Key]interface{}{}
 	m.funcmap2 = map[tcell.Key]interface{}{}
-	m.Children = []MenuItem{}
+	m.Children = []*MenuItem{}
 	return m
 }
 
@@ -270,7 +269,7 @@ func (m *MenuBar) NewItem(label string) (*MenuItem, error) {
 	for i := 0; i < len(m.Children); i++ {
 		if m.Children[i].Label == label {
 
-			return &m.Children[i], errors.New("NewItem: non-unique label, pointer exists.")
+			return m.Children[i], errors.New("NewItem: non-unique label, pointer exists.")
 		}
 	}
 
@@ -279,7 +278,7 @@ func (m *MenuBar) NewItem(label string) (*MenuItem, error) {
 	if len(l.Label) > m.MaxChars {
 		m.MaxChars = len(l.Label)
 	}
-	m.Children = append(m.Children, *l)
+	m.Children = append(m.Children, l)
 	m.mostitems = len(m.Children)
 	return l, nil
 
@@ -289,10 +288,10 @@ func (m *MenuBar) NewItem(label string) (*MenuItem, error) {
 func (m *MenuBar) GetChild(label string) (*MenuItem, error) {
 	for _, v := range m.Children {
 		if v.Label == label {
-			return &v, nil
+			return v, nil
 		}
 	}
-	return nil, errors.New("Lol no label")
+	return nil, errors.New("menubar: no child by that name")
 }
 
 // GetChildNumber by selection number
@@ -303,7 +302,7 @@ func (m *MenuBar) GetChildNumber(sel int) (*MenuItem, error) {
 	}
 	for i, v := range m.Children {
 		if i == sel-1 {
-			return &v, nil
+			return v, nil
 		}
 	}
 	return nil, errors.New("No id")
@@ -325,64 +324,7 @@ func (m *MenuBar) empty() bool {
 }
 
 // Clock for a menu
-func (m *MenuBar) Clock() {
-	// go func() {
-	// 	for {
-	// 		select {
-	// 		case clock := <-m.events.Input:
-	// 			switch clock.(type) {
-	// 			case int:
-	// 				if clock.(int) == 1200 {
-	// 					break
-	// 				} else {
-	// 					m.events.Input <- clock
-	//
-	// 				}
-	// 			}
-	// 		case <-time.After(1 * time.Second):
-	// 			Type(m.screen, 0, 10, 4, time.Now().String())
-	//
-	// 		}
-	// 	}
-	// }()
-}
-
-// //Loop lol
-// func (m *MenuBar) loop(wc *WidgetController) {
-//
-// 	m.doit()
-//
-// }
-//
-// // MainLoop (MenuBar) loops for user input and sends to chan if they select a menu item.
-// func (m *MenuBar) MainLoop() (sel string) {
-// 	// Create a screen if we aren't already in one. (Or if it has previously been closed by screen.Fini())
-//
-// 	if m.screen == nil {
-// 		m.screen = load(nil)
-// 	}
-//
-// 	for {
-// 		if m.scroller.Buffer != nil {
-// 			m.scroller.debug()
-// 			if m.scroller.Buffer.Len() > 0 {
-// 				m.scroller.Present()
-//
-// 			}
-// 		}
-//
-// 		if m.message != "" {
-// 			clearchar(m.screen, 0, 0, len(m.message))
-// 			go func() {
-// 				TypeWriter(m.screen, 0, 0, tcell.StyleDefault, m.message)
-// 				m.screen.Show()
-// 				m.message = ""
-// 			}()
-// 		}
-// 		log.Println("Present is returning")
-// 		//		return m.doit()
-// 	}
-// }
+func (m *MenuBar) Clock() {}
 
 //GetWidgetController returns the controller for the menubar
 // Sending a m.GetWidgetController().Input <- "end" will end the event loop
