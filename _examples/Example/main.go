@@ -42,7 +42,7 @@ func doMenuBar() {
 	menu.NewItem("Gold")
 	menu.AttachScroller(scroller)
 	scroller.Buffer.WriteString("Helo scrol world buffer")
-	scroller.Buffer.WriteString(clix.LongDummyText)
+	scroller.Buffer.WriteString(clix.Fill())
 
 	menu.SetMessage(msg)
 	menu.NewItem("Green")
@@ -110,7 +110,7 @@ func doMenuBar() {
 	case l := <-events.Output:
 		log.Println("Output:", l)
 		mainout = l
-		goto Done
+
 		switch l.(type) {
 		case string:
 			switch l.(string) {
