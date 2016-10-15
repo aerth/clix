@@ -17,10 +17,13 @@ func init() {
 	null, _ := os.OpenFile(os.DevNull, os.O_WRONLY, os.ModeAppend)
 	log.SetOutput(null)
 }
-
 func TestTitleMenu(t *testing.T) {
 	mm := NewTitleMenu()
-	mm.AddLine("press any key to continue")
+		line1 := "Prepare to calibrate your joystick."
+		line2 := "It may feel like its a human test, but really..."
+	mm.AddLine(line1)
+		mm.AddLine(line2)
+			mm.AddLine("press any key to continue")
 	mm.Present()
 	fmt.Println("You did it.")
 	time.Sleep(1 * time.Second)
