@@ -32,7 +32,7 @@ func main() {
 	menu.NewItem("Gold")
 	menu.AttachScroller(scroller)
 	scroller.Buffer.WriteString("Helo scrol world buffer")
-	scroller.Buffer.WriteString(clix.LongDummyText)
+	scroller.Buffer.WriteString(clix.Fill())
 	//menu.SetMessage("this is a message")
 	menu.NewItem("Green")
 	menu.AddFunc(tcell.KeyCtrlK, func(interface{}) interface{} {
