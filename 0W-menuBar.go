@@ -67,12 +67,11 @@ func (m *MenuBar) Connect(s string, f func() interface{}) (sel string) {
 
 //AddEntry to a menubar
 func (m *MenuBar) AddEntry(menuLabel string, e *Entry) {
-	m.NewItem("Entry" + menuLabel)
-	m.Connect("Entry"+menuLabel, func() interface{} {
-		return m.entrybar.PresentMinimal(m.widgetcontroller.Input)
+	m.NewItem(menuLabel)
+	m.Connect(menuLabel, func() interface{} {
+		return e.PresentMinimal(m.widgetcontroller.Input)
 	})
 
-	m.entrybar = e
 }
 
 // AddFunc to the FuncMap
