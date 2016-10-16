@@ -121,7 +121,7 @@ func ScrollWriter(parent *MenuBar, scrolls []string, chars int) {
 
 	x, y := 2, m
 	for z, v := range scrolls {
-		//log.Println("clearing", z)
+		////log.Println("clearing", z)
 		if z > ymax-parent.mostitems-ts-3 {
 			break
 		}

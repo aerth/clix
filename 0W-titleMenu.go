@@ -130,7 +130,7 @@ func (m *TitleMenu) Present() interface{} {
 
 		log.Printf("Welcome to %q.\n", m.title)
 	} else {
-		log.Println("Welcome!")
+		//log.Println("Welcome!")
 	}
 	m.Clock()
 	if m.screen == nil {
@@ -167,15 +167,15 @@ func (m *TitleMenu) loop() interface{} {
 		switch ev := ev.(type) {
 		case *tcell.EventKey: // User pressed a key or keycombo
 			if m.funcmap[ev.Key()] != nil {
-				log.Println("Found funcmap match for TitleMenu")
+				//log.Println("Found funcmap match for TitleMenu")
 				out := m.funcmap[ev.Key()](m.funcmap2[ev.Key()])
-				log.Println("interesting", out)
+				//log.Println("interesting", out)
 
 				return out
 
 			}
 			m.screen.Sync()
-			log.Println("bailing")
+			//log.Println("bailing")
 			return ev
 
 		}

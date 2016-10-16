@@ -7,6 +7,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func init() {
@@ -212,4 +214,25 @@ func humanMenuBarMulti(t *testing.T) {
 
 func machineTest(t *testing.T) {
 
+}
+
+func TestEntry(t *testing.T) {
+	e := NewEntry(nil)
+	e.AddPrompt("Hello! Enter 'GOLD' to win!")
+	str := e.Present()
+	fmt.Println("Got:", str)
+	assert.Equal(t, "GOLD", str)
+}
+func TestEvents(t *testing.T) {
+	// ev := NewEventHandler()
+	// evdone := ev.Launch()
+	//
+	// go func() {
+	// 	time.Sleep(1 * time.Second)
+	// 	evdone.Done()
+	// }()
+	//
+	// for {
+	//
+	// }
 }

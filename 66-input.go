@@ -1,10 +1,9 @@
 package clix
 
-import (
-	"log"
+import
+//"log"
 
-	"github.com/gdamore/tcell"
-)
+"github.com/gdamore/tcell"
 
 var promptText = "[cmd]"
 var numchar int
@@ -40,14 +39,17 @@ func peekInput(screen tcell.Screen) string {
 func getTextMin(screen tcell.Screen) string {
 	xmax, ymax := screen.Size()
 	var input []rune
-	log.Println("Getting", numchar)
+	////log.Println("Getting", numchar)
 	for posx := xmax - 20 + 1; posx < numchar+xmax-20+1; posx++ {
 
 		rune1, _, _, _ := screen.GetContent(posx, ymax-1)
-		log.Println(rune1, posx)
+		screen.SetCell(posx, ymax-1, tcell.StyleDefault, rune(0))
+		////log.Println(rune1, posx)
 		input = append(input, rune1)
 	}
-	log.Printf("got text: %q\n", string(input))
+
+	screen.HideCursor()
+	////log.Printf("got text: %q\n", string(input))
 	return string(input)
 }
 
@@ -55,7 +57,7 @@ func getTextMin(screen tcell.Screen) string {
 func peekInputMin(screen tcell.Screen) string {
 	xmax, ymax := screen.Size()
 	var input []rune
-	log.Println("Getting", numchar)
+	////log.Println("Getting", numchar)
 	for posx := xmax - 20; posx <= numchar+xmax-20+1; posx++ {
 		rune1, _, _, _ := screen.GetContent(posx, ymax)
 		input = append(input, rune1)

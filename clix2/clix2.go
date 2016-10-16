@@ -202,7 +202,7 @@ func (w *Window) Present() {
 	var loopnum int
 	for {
 		loopnum++
-		log.Println("Loop", loopnum)
+		//log.Println("Loop", loopnum)
 		e := w.screen.PollEvent()
 
 		switch e.(type) {
@@ -213,30 +213,30 @@ func (w *Window) Present() {
 				var click Click
 				click.X, click.Y = e.(*tcell.EventMouse).Position()
 				click.Button = int(b)
-				log.Println(fmt.Sprintf("Mouse button \"%v\" at %v,%v", click.Button, click.X, click.Y))
+				//log.Println(fmt.Sprintf("Mouse button \"%v\" at %v,%v", click.Button, click.X, click.Y))
 				go func() {
 					w.Input <- click
-					log.Println(click, "sent to Input channel")
+					//log.Println(click, "sent to Input channel")
 				}()
 			}
 			// End case: Mouse
 		case *tcell.EventKey:
-			log.Println("Key:", e.(*tcell.EventKey).Name())
+			//log.Println("Key:", e.(*tcell.EventKey).Name())
 			switch e.(*tcell.EventKey).Key() {
 			case tcell.KeyRune:
 				w.buffer.WriteRune(e.(*tcell.EventKey).Rune())
 				//w.Type(Coordinates{X: 1, Y: 2}, w.buffer.String())
 			case tcell.KeyCtrlJ: // Ctrl ENTER
 				mod := e.(*tcell.EventKey).Modifiers()
-				log.Println("Key Mod:", mod)
+				//log.Println("Key Mod:", mod)
 			case tcell.KeyEnter:
 				mod := e.(*tcell.EventKey).Modifiers()
-				log.Println("Key Mod:", mod)
+				//log.Println("Key Mod:", mod)
 				w.buffer.WriteString("\n")
 				w.Output <- w.buffer.String()
 				//w.Type(Coordinates{X: 1, Y: 2}, w.buffer.String())
 			case tcell.KeyBackspace, tcell.KeyBackspace2:
-				log.Println("Buffer length:", w.buffer.Len())
+				//log.Println("Buffer length:", w.buffer.Len())
 				if w.buffer.Len() > 0 {
 					w.buffer.Truncate(w.buffer.Len() - 1)
 					//w.Type(Coordinates{X: 1, Y: 2}, w.buffer.String())
@@ -245,13 +245,13 @@ func (w *Window) Present() {
 			// 	filer.Touch("saveout.log")
 			// 	filer.Write("saveout.log", w.buffer.Bytes())
 			case tcell.KeyCtrlC, tcell.KeyCtrlQ:
-				log.Println("Ctrl+C sending 'quit' to Output channel")
+				//log.Println("Ctrl+C sending 'quit' to Output channel")
 				w.Output <- "quit"
 				return
 			default:
 				go func() {
 					w.Input <- e.(*tcell.EventKey).Name()
-					log.Println(e.(*tcell.EventKey).Name(), "sent to Input channel")
+					//log.Println(e.(*tcell.EventKey).Name(), "sent to Input channel")
 				}()
 			}
 			// End case: Key
@@ -266,7 +266,7 @@ func (w *Window) Present() {
 			return // Silently exit stage left
 		default:
 			// We dont know what this was.
-			log.Println("Unknown user input.", e)
+			//log.Println("Unknown user input.", e)
 			w.Output <- "quit"
 			return
 			// End case: Resize

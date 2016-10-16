@@ -3,7 +3,6 @@
 package clix
 
 import (
-	"context"
 	"sync"
 
 	"github.com/gdamore/tcell"
@@ -57,29 +56,33 @@ func NewEventHandler() *EventHandler {
 //This should be one of the first things called in your main,
 // after attaching to ONE menu with ev.AddMenuBar
 // ctx is given to be able to 'shut er down'
-func (ev *EventHandler) Launch() (ctx context.Context) {
+func (ev *EventHandler) Launch() chan int {
+	donechan := make(chan int, 1)
 	if ev.launched {
-		return
+		return nil
 	}
 	ev.launched = true
+	// Each MenuBar gets a go func loop
 	for i := range ev.MenuBars {
 		go func(v *MenuBar) {
-			defer func() {
-				v.draw()
-			}()
 			for {
-
 				// This goroutine ONLY sends screen input to the "widgetcontroller.Input" channel
 				// It only doesn't hang if your application uses it. It can be ignored.
 				// The widgetcontroller Input channel can be listened to with: for { select { case in := <- wc.Input: } }
 				go func() {
 					for {
+
 						req := v.screen.PollEvent()
 						if req == nil {
+							// req is only nil if screen ended.
 							return
 						}
 						// Send all input to WidgetController Input
-						v.widgetcontroller.Input <- req
+						select {
+						default:
+							v.widgetcontroller.Input <- req
+
+						}
 					}
 				}()
 
@@ -93,18 +96,18 @@ func (ev *EventHandler) Launch() (ctx context.Context) {
 
 				event := v.GetScreen().PollEvent()
 				if event == nil {
-					//log.Println("EventHandler is nil, this goroutine is leaving.")
+					////log.Println("EventHandler is nil, this goroutine is leaving.")
 					v.drawing = false
 					return
 				}
-				//log.Println("Got event, sending to ev.Input")
+				////log.Println("Got event, sending to ev.Input")
 				ev.Input <- event
 
 			}
 		}(ev.MenuBars[i])
 
 	}
-	return ctx
+	return donechan
 }
 
 //AddMenuBar to an ev

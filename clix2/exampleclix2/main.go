@@ -122,7 +122,7 @@ Loop:
 			case string:
 				str := output.(string)
 				if str == "quit" {
-					log.Println(`Received "quit" on output channel.`)
+					//log.Println(`Received "quit" on output channel.`)
 					break Loop
 				}
 				filer.Touch("output.log")

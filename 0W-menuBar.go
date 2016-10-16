@@ -5,7 +5,6 @@ package clix
 import (
 	"errors"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/gdamore/tcell"
@@ -70,8 +69,7 @@ func (m *MenuBar) Connect(s string, f func() interface{}) (sel string) {
 func (m *MenuBar) AddEntry(menuLabel string, e *Entry) {
 	m.NewItem("Entry" + menuLabel)
 	m.Connect("Entry"+menuLabel, func() interface{} {
-		m.entrybar.PresentMinimal(m.widgetcontroller.Input, m.events.Output)
-		return "gold"
+		return m.entrybar.PresentMinimal(m.widgetcontroller.Input)
 	})
 
 	m.entrybar = e
@@ -108,20 +106,20 @@ func (m *MenuBar) Present(clear bool) {
 func (m *MenuBar) draw() {
 
 	if m.events == nil {
-		log.Println("not drawing. nil events")
+		//log.Println("not drawing. nil events")
 		return
 	}
 	if m.screen == nil {
-		log.Println("not drawing. nil screen")
+		//log.Println("not drawing. nil screen")
 		return
 	}
 	if m.widgetcontroller == nil {
-		log.Println("not drawing. nil widgetcontroller")
+		//log.Println("not drawing. nil widgetcontroller")
 		return
 
 	}
 
-	log.Println("drawing a MenuBar", m.title)
+	//log.Println("drawing a MenuBar", m.title)
 	if m.screen == nil {
 		m.screen = load(m.screen)
 	}
@@ -130,10 +128,9 @@ func (m *MenuBar) draw() {
 	var ts = 0
 	if m.title != "" {
 		Type(m.screen, 2, ymax-m.mostitems-2, style5, fmt.Sprint(m.title))
-		ts++
 	}
 	if m.message != "" {
-		Type(m.screen, 2, 0, style5, fmt.Sprint(m.message))
+		Type(m.screen, 2, 1, style5, fmt.Sprint(m.message))
 
 	}
 	var itemnum int
@@ -296,7 +293,7 @@ func (m *MenuBar) GetChild(label string) (*MenuItem, error) {
 
 // GetChildNumber by selection number
 func (m *MenuBar) GetChildNumber(sel int) (*MenuItem, error) {
-	log.Println("Trying", sel, len(m.Children))
+	//log.Println("Trying", sel, len(m.Children))
 	if sel > len(m.Children) {
 		return nil, errors.New("Too far")
 	}
@@ -359,46 +356,46 @@ func (m *MenuBar) handleEvents() string {
 		m.draw()
 		// We need a widgetcontroller to continue
 		if m.widgetcontroller == nil {
-			log.Println("nil WidgetController, waiting one second:", m.title)
+			//log.Println("nil WidgetController, waiting one second:", m.title)
 			time.Sleep(1 * time.Second)
 			continue
 		}
 
 		select {
 		case <-time.After(10 * time.Second):
-			log.Println("Refreshing menu (10 sec)")
+			//log.Println("Refreshing menu (10 sec)")
 			m.draw()
 			continue
 		case in := <-m.widgetcontroller.Input:
 			switch in.(type) {
 			case string:
-				log.Println("WidgetController: Received signal:", in)
+				//log.Println("WidgetController: Received signal:", in)
 
 				if in == "continue" {
 					continue
 				}
 				if in == "end" || in == "stop" {
-					log.Println("ENDING IT")
+					//log.Println("ENDING IT")
 					m.screen.Clear()
 					m.screen.Show()
 					m.events.Output <- "ended"
 					return "ended"
 				}
-				log.Println("")
+				//log.Println("")
 			case tcell.Event:
-				log.Println("WidgetController: Received tcell.Event")
+				//log.Println("WidgetController: Received tcell.Event")
 
 				ev := in.(tcell.Event)
 
 				if ev.When().IsZero() {
-					log.Println(" no event? ")
+					//log.Println(" no event? ")
 					continue
 				}
 
 				switch ev := ev.(type) {
 
 				case *tcell.EventResize:
-					log.Println("WidgetController: Event is Resize")
+					//log.Println("WidgetController: Event is Resize")
 
 					xmax, ymax = m.screen.Size()
 					_ = ymax
@@ -406,7 +403,7 @@ func (m *MenuBar) handleEvents() string {
 					m.screen.Show()
 
 				case *tcell.EventKey: // User pressed a key or keycombo
-					log.Println("WidgetController: Event is Key")
+					//log.Println("WidgetController: Event is Key")
 					if m.entrybar != nil && m.entrybar.isactive {
 						m.entrybar.Input <- ev
 					}
@@ -431,7 +428,7 @@ func (m *MenuBar) handleEvents() string {
 						}
 						m.scroller.loc = m.scroller.loc + (xmax * 5)
 						continue
-						//log.Println(m.scroller.loc)
+						////log.Println(m.scroller.loc)
 					case tcell.KeyPgUp:
 						if m.scroller.loc-xmax <= (xmax - 5) {
 							m.scroller.loc = 0
@@ -439,7 +436,7 @@ func (m *MenuBar) handleEvents() string {
 							continue
 						}
 						m.scroller.loc = m.scroller.loc - (xmax * 5) - 5
-						//log.Println(m.scroller.loc)
+						////log.Println(m.scroller.loc)
 					case tcell.KeyEnter:
 						if m.zindex != 0 {
 							short := m.Siblings[m.zindex-1]
@@ -450,14 +447,13 @@ func (m *MenuBar) handleEvents() string {
 							m.Siblings[m.zindex-1].Selection = len(m.Siblings[m.zindex-1].Children) + 1
 							m.screen.Clear()
 
-							log.Println("Got enter:", s)
+							//log.Println("Got enter:", s)
 
 							if m.menumap[s] != nil {
-								log.Println("ENTER NOT NIL")
-								m.menumap[s]()
-								continue
-							} else {
-								log.Println("not in menumap:", m.menumap)
+								//log.Println("ENTER NOT NIL")
+								o := m.menumap[s]()
+								m.events.Output <- o
+								return o.(string)
 							}
 							m.events.Output <- s
 
@@ -477,12 +473,13 @@ func (m *MenuBar) handleEvents() string {
 						if 0 <= m.Selection && m.Selection <= len(m.Children) {
 							s := m.Children[m.Selection].Label
 							if m.menumap[s] != nil {
-								log.Println("ENTER NOT NIL")
-								m.menumap[s]()
-								continue
-							} else {
-								log.Println("not in menumap:", m.menumap)
+								//log.Println("ENTER NOT NIL")
+								m.Selection = len(m.Children) - 1
+								o := m.menumap[s]()
+								m.events.Output <- o
+								return o.(string)
 							}
+
 							m.Selection = len(m.Children) - 1
 							m.screen.Clear()
 							m.events.Output <- s
@@ -513,7 +510,7 @@ func (m *MenuBar) handleEvents() string {
 						continue
 					case tcell.KeyDown:
 
-						log.Println(m.zindex)
+						//log.Println(m.zindex)
 						if m.zindex != 0 {
 							if m.Siblings[m.zindex-1].Selection > len(m.Siblings[m.zindex-1].Children)-2 {
 								m.Siblings[m.zindex-1].Selection = 0
@@ -535,18 +532,18 @@ func (m *MenuBar) handleEvents() string {
 						continue
 					case tcell.KeyLeft:
 						if len(m.Siblings) == 0 {
-							log.Println("Left: Continuing because no menu Siblings")
+							//log.Println("Left: Continuing because no menu Siblings")
 							continue
 						}
 
 						if m.zindex <= 0 {
 							// Loop around to the left
 							m.zindex = len(m.Siblings)
-							log.Println("Left: looping right", m.zindex)
+							//log.Println("Left: looping right", m.zindex)
 							continue
 						}
 
-						log.Println("Left", m.zindex, m.Selection, m.Siblings[0].Selection)
+						//log.Println("Left", m.zindex, m.Selection, m.Siblings[0].Selection)
 						if m.Selection < len(m.Siblings[0].Children) {
 
 							m.Selection = m.Siblings[0].Selection
@@ -558,18 +555,18 @@ func (m *MenuBar) handleEvents() string {
 						continue
 					case tcell.KeyRight:
 						if len(m.Siblings) == 0 {
-							log.Println("Right: Continuing because no menu Siblings")
+							//log.Println("Right: Continuing because no menu Siblings")
 							continue
 						}
 
 						if m.zindex >= len(m.Siblings) {
 							// Loop around to the left
 							m.zindex = 0
-							log.Println("Right: looping left", m.zindex)
+							//log.Println("Right: looping left", m.zindex)
 							continue
 						}
 
-						log.Println("Right", m.zindex, m.Selection, m.Siblings[0].Selection)
+						//log.Println("Right", m.zindex, m.Selection, m.Siblings[0].Selection)
 						if m.Selection < len(m.Siblings[0].Children) {
 							m.Siblings[0].Selection = m.Selection
 						} else {
@@ -587,7 +584,7 @@ func (m *MenuBar) handleEvents() string {
 					// lets see if its in the application's defined funcmap
 
 					if m.funcmap[ev.Key()] != nil {
-						log.Println("Got a match.", ev.Name())
+						//log.Println("Got a match.", ev.Name())
 						var out interface{}
 						switch m.funcmap2[ev.Key()].(type) {
 						case func():
@@ -597,68 +594,68 @@ func (m *MenuBar) handleEvents() string {
 						m.funcmap[ev.Key()](out)
 						continue
 					}
-					log.Println("Got a key that has not been assigned:", ev.Name())
+					//log.Println("Got a key that has not been assigned:", ev.Name())
 					//m.events.Input <- ev.Key()
 				case *tcell.EventMouse:
-					log.Println("WidgetController: Event is Mouse")
+					//log.Println("WidgetController: Event is Mouse")
 					x, y := ev.Position()
 					_, ymax := m.screen.Size()
 					// switch {
 					// case x < 15:
-					// 	log.Println("col 1", x, ymax-y)
+					// 	//log.Println("col 1", x, ymax-y)
 					// case 16 < x && x < 32:
-					// 	log.Println("col 2", x, ymax-y)
+					// 	//log.Println("col 2", x, ymax-y)
 					// case 32 < x && x < 60:
-					// 	log.Println("col 3", x, ymax-y)
+					// 	//log.Println("col 3", x, ymax-y)
 					// default:
 					// 	continue
 					// }
 					switch ev.Buttons() {
 					case 4: // right
-					//	log.Println("Right Click", x, y)
+					//	//log.Println("Right Click", x, y)
 					case 1: // left
 						switch {
 						case x < 15:
-							//		log.Println("*col 1", x, y)
+							//		//log.Println("*col 1", x, y)
 							if y+2 > ymax-len(m.Children) {
-								//		log.Println(len(m.Children) - (ymax - y) + 2)
+								//		//log.Println(len(m.Children) - (ymax - y) + 2)
 								form := len(m.Children) - (ymax - y) + 2
 								z, err := m.GetChildNumber(form)
 								if err != nil {
-									//				log.Println(err)
+									//				//log.Println(err)
 									continue
 								}
-								//			log.Println("Clicked", z.Label, x, y)
+								//			//log.Println("Clicked", z.Label, x, y)
 
 								m.events.Output <- z.Label
 
 							}
 						case 16 < x && x < 32:
-							//			log.Println("*col 2", x, y)
+							//			//log.Println("*col 2", x, y)
 							if len(m.Siblings) < 1 {
 								continue
 							}
 							form := len(m.Children) - (ymax - y) + 2
 							z, err := m.Siblings[0].GetChildNumber(form)
 							if err != nil {
-								//	log.Println(err)
+								//	//log.Println(err)
 								continue
 							}
-							//		log.Println("Clicked", z.Label, x, y)
+							//		//log.Println("Clicked", z.Label, x, y)
 							m.events.Output <- z.Label
 
 						case 32 < x && x < 60:
-							//		log.Println("*col 3", x, y)
+							//		//log.Println("*col 3", x, y)
 							if len(m.Siblings) < 2 {
 								continue
 							}
 							form := len(m.Children) - (ymax - y) + 2
 							z, err := m.Siblings[1].GetChildNumber(form)
 							if err != nil {
-								//			log.Println(err)
+								//			//log.Println(err)
 								continue
 							}
-							//		log.Println("Clicked", z.Label, x)
+							//		//log.Println("Clicked", z.Label, x)
 							m.events.Output <- z.Label
 
 						}

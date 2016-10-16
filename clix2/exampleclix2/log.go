@@ -36,5 +36,5 @@ func logger() {
 	log.SetFlags(log.Lshortfile)
 	filer.Touch(logfile)
 	filer.Append(logfile, []byte("\n\n\n\n"))
-	log.Println("Started", time.Now().Format(time.Kitchen))
+	//log.Println("Started", time.Now().Format(time.Kitchen))
 }

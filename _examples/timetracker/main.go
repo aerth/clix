@@ -151,7 +151,7 @@ NewReport:
 			repeated.Len = timetable[len(timetable)-1].Len
 			msg = fmt.Sprintf("Repeated: %s to %s = %s", repeated.In, repeated.Out, repeated.Len)
 			curtime += repeated.Len
-			log.Println("Session:", repeated.Len, "Total:", curtime)
+			//log.Println("Session:", repeated.Len, "Total:", curtime)
 			timetable = append(timetable, repeated)
 			goto ClockIn
 		}
@@ -179,11 +179,11 @@ NewReport:
 			clockin, err = time.Parse("15:04", ins)
 		}
 		if err != nil {
-			log.Println(err)
+			//log.Println(err)
 			msg = err.Error()
 			goto ClockIn
 		}
-		log.Println("Clock In", i, clockin.Format(time.Kitchen))
+		//log.Println("Clock In", i, clockin.Format(time.Kitchen))
 		period.In = clockin
 		//	outerr = nil
 	ClockOut:
@@ -237,7 +237,7 @@ NewReport:
 		}
 
 		if err != nil {
-			log.Println(err)
+			//log.Println(err)
 			msg = err.Error()
 			goto ClockOut
 		}
@@ -254,8 +254,8 @@ NewReport:
 		curtime += durat
 
 		// Send to log
-		log.Println("Clock Out", i, clockout.Format(time.Kitchen))
-		log.Println("Session:", durat, "Total:", curtime)
+		//log.Println("Clock Out", i, clockout.Format(time.Kitchen))
+		//log.Println("Session:", durat, "Total:", curtime)
 
 		// Add to current timetable
 		timetable = append(timetable, period)
@@ -321,7 +321,7 @@ func GenerateReport() (string, string) {
 	}
 	err := ioutil.WriteFile(*outflag, b.Bytes(), 0700)
 	if err != nil {
-		log.Println(err)
+		//log.Println(err)
 	} else {
 		fmt.Printf("Wrote %v bytes to %q\n", b.Len(), *outflag)
 	}

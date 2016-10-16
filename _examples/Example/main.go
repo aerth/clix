@@ -48,13 +48,13 @@ func doMenuBar() {
 	menu.NewItem("Green")
 	menu.AddFunc(tcell.KeyCtrlK, func(interface{}) interface{} {
 		count++
-		log.Println("CtrlK", count)
+		//log.Println("CtrlK", count)
 		return nil
 	})
 
 	menu.AddFunc(tcell.KeyCtrlL, func(i interface{}) interface{} {
 		count++
-		log.Println("CtrlL", i)
+		//log.Println("CtrlL", i)
 		return nil
 	}, time.Now)
 
@@ -83,14 +83,14 @@ func doMenuBar() {
 	// Timeout // Close menu from outside
 	// go func() {
 	// 	time.Sleep(10 * time.Second)
-	// 	log.Println("trying timeout:")
+	// 	//log.Println("trying timeout:")
 	// 	menu.GetWidgetController().Input <- "end"
 	// 	//menu.GetWidgetController().Input <- "minimize"
 	// }()
 	// Timeout // Close menu from outside
 	go func() {
 		time.Sleep(400 * time.Second)
-		log.Println("trying test:")
+		//log.Println("trying test:")
 		menu.GetWidgetController().Input <- "test"
 		//menu.GetWidgetController().Input <- "minimize"
 	}()
@@ -106,9 +106,9 @@ func doMenuBar() {
 	select {
 
 	// case l := <-menu.GetWidgetController().Output:
-	// 	log.Println("MC Out:", l)
+	// 	//log.Println("MC Out:", l)
 	case l := <-events.Output:
-		log.Println("Output:", l)
+		//log.Println("Output:", l)
 		mainout = l
 
 		switch l.(type) {
@@ -168,6 +168,6 @@ func entrydemo(s tcell.Screen) string {
 
 	e.AddPrompt("What is name")
 	str := e.Present()
-	log.Println(str)
+	//log.Println(str)
 	return str
 }

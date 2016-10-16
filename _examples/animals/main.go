@@ -42,9 +42,9 @@ func main() {
 	var mainout interface{}
 	select {
 	// case l := <-menu.GetWidgetController().Output:
-	// 	log.Println("MC Out:", l)
+	// 	//log.Println("MC Out:", l)
 	case l := <-events.Output:
-		log.Println("Output:", l)
+		//log.Println("Output:", l)
 		mainout = l
 		switch l.(type) {
 		case string:

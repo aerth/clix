@@ -56,7 +56,7 @@ Start:
 
 	ball := newBall(win)
 	ball.difficulty = loopnum
-	log.Println("Level", ball.difficulty)
+	//log.Println("Level", ball.difficulty)
 	go playball(ball)
 	for i := 0; i < ball.difficulty; i++ {
 		go fruitgenerator(ball)
@@ -68,15 +68,15 @@ Loop:
 			switch output.(type) {
 			case int: // is a score!
 				score := output.(int)
-				log.Println("Received Score:", score)
+				//log.Println("Received Score:", score)
 				break Loop
 			case string:
 				str := output.(string)
 				if str == "quit" {
-					log.Println(`Received "quit" on output channel.`)
+					//log.Println(`Received "quit" on output channel.`)
 					break Loop
 				} else {
-					log.Println("Output channel:", str)
+					//log.Println("Output channel:", str)
 					s := clean(str)
 					if s == "" && !ball.alive {
 						break Loop

@@ -32,5 +32,5 @@ func logger() {
 
 	log.SetOutput(f)
 	log.SetFlags(log.Lshortfile)
-	log.Println(time.Now())
+	//log.Println(time.Now())
 }

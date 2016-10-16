@@ -31,7 +31,7 @@ Some goals of the clix library:
 
 	Easy to use, write, read, and learn
 	Easy to implement into existing command line programs
-	A solid array of widgets, which are components that accept user input
+	A solid widget lineup, which are components that accept user input
 	Not to break your software
 
 Compatibility promise
@@ -80,6 +80,10 @@ PR welcome
 func StdOut(screen tcell.Screen) {
 	screen.Clear()
 	screen.Fini()
+}
+
+func Blank() tcell.Screen {
+	return load(nil)
 }
 
 // load Returns new tcell screen if necessary

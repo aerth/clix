@@ -3,7 +3,6 @@ package clix
 // WIDGET: Entry
 
 import (
-	"log"
 	"os"
 
 	"github.com/gdamore/tcell"
@@ -83,10 +82,10 @@ func (e *Entry) PasswordLabel(s ...string) {
 	return
 }
 
-// PresentMinimal to entry
-func (e *Entry) PresentMinimal(input, ch chan interface{}) {
+// PresentMinimal to entry while inside a MenuBar (as an "other" field)
+func (e *Entry) PresentMinimal(input chan interface{}) string {
 	e.Input = input
-	e.Output = ch
+
 	e.isactive = true
 	for {
 		mx, my := e.screen.Size()
@@ -96,14 +95,14 @@ func (e *Entry) PresentMinimal(input, ch chan interface{}) {
 		if e.prompt != nil {
 			prompt = e.prompt[0]
 		}
-		log.Println("Entry: Drawing prompt rune: >")
+		////log.Println("Entry: Drawing prompt rune: >")
 		e.screen.SetContent(xmax-21, ymax-1, '>', nil, color1)
 		e.screen.Show()
 		ev := <-input
 		if ev == nil {
-			return
+			return ""
 		}
-		log.Printf("Entry: got input: %T \nl", ev)
+		//log.Printf("Entry: got input: %T \nl", ev)
 		var f func()
 		switch ev := ev.(type) {
 		case *tcell.EventResize:
@@ -134,7 +133,7 @@ func (e *Entry) PresentMinimal(input, ch chan interface{}) {
 				/* Here we need to clean up before we leave */
 
 				str := getTextMin(e.screen)
-				log.Println(str)
+				////log.Println(str)
 				if str == "" {
 					continue
 				}
@@ -153,10 +152,13 @@ func (e *Entry) PresentMinimal(input, ch chan interface{}) {
 						clearline(e.screen, my-3-i)
 					}
 				}
+				e.screen.SetContent(xmax-21, ymax-1, ' ', nil, color1)
+				e.screen.Show()
+				clearline(e.screen, my-1)
+				numchar = 0
+				selchar = 0
+				return str
 
-				ch <- str
-
-				return
 			case tcell.KeyLeft:
 				if selchar < 1 {
 					continue
@@ -181,7 +183,7 @@ func (e *Entry) PresentMinimal(input, ch chan interface{}) {
 					continue
 				}
 				peek := peekInputMin(e.screen)
-				log.Println("Peek:", peek)
+				////log.Println("Peek:", peek)
 				var news []byte
 				for i := 0; i < numchar; i++ {
 					if i != selchar {
@@ -189,7 +191,7 @@ func (e *Entry) PresentMinimal(input, ch chan interface{}) {
 					}
 				}
 
-				log.Println("testing del:", peek, string(news))
+				////log.Println("testing del:", peek, string(news))
 				drawInputBar(e.screen, 1)
 				selchar = ogselchar
 				numchar = ognumchar - 1
@@ -211,11 +213,11 @@ func (e *Entry) PresentMinimal(input, ch chan interface{}) {
 
 				e.screen.Show()
 				continue
-			default:
+			case tcell.KeyRune:
 				xmax, ymax := e.screen.Size()
 				if numchar >= xmax-1 {
 					// if *verbose {
-					// 	log.Println("Can't type past window border in this version.")
+					// 	////log.Println("Can't type past window border in this version.")
 					// }
 					continue
 				}
@@ -248,13 +250,6 @@ func (e *Entry) PresentMinimal(input, ch chan interface{}) {
 				e.screen.Show()
 			}
 		}
-		go func() {
-			select {
-			case i := <-input:
-				log.Println("MinEntry got", i)
-			default: //
-			}
-		}()
 	}
 }
 
@@ -263,7 +258,7 @@ func (e *Entry) Present() string {
 	if e.screen == nil {
 		e.screen = load(nil)
 	} else {
-		log.Println("Not nil screen")
+		////log.Println("Not nil screen")
 	}
 	defer e.screen.Fini()
 
@@ -383,7 +378,7 @@ func (e *Entry) Present() string {
 					}
 				}
 
-				log.Println("testing del:", peek, string(news))
+				////log.Println("testing del:", peek, string(news))
 				drawInputBar(e.screen, 1)
 				selchar = ogselchar
 				numchar = ognumchar - 1
@@ -405,11 +400,11 @@ func (e *Entry) Present() string {
 
 				e.screen.Show()
 				continue
-			default:
+			case tcell.KeyRune:
 				xmax, ymax := e.screen.Size()
 				if numchar >= xmax-1 {
 					// if *verbose {
-					// 	log.Println("Can't type past window border in this version.")
+					// 	////log.Println("Can't type past window border in this version.")
 					// }
 					continue
 				}

@@ -72,7 +72,7 @@ func playball(ball *Ball) {
 			switch input.(type) {
 			default:
 			case string:
-				log.Println("Input chan:", input)
+				//log.Println("Input chan:", input)
 				switch input.(string) {
 				default:
 				case "Enter":
@@ -227,9 +227,9 @@ func fruitgenerator(ball *Ball) {
 						loopnum+1, ball.foodEaten))
 				ball.screen.Show()
 				ball.alive = false
-				log.Println("Finished level", loopnum+1)
+				//log.Println("Finished level", loopnum+1)
 				//stopfruit <- 1
-				log.Println("Finished level!", loopnum+1)
+				//log.Println("Finished level!", loopnum+1)
 				return
 			}
 			i := makefruit(ball.window.GetScreen())
