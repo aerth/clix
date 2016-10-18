@@ -2,6 +2,7 @@ package clix
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"strings"
@@ -235,4 +236,39 @@ func TestEvents(t *testing.T) {
 	// for {
 	//
 	// }
+}
+func TestScroll(t *testing.T) {
+
+	scrol := NewScrollFrame("lolz")
+	scrol.title = "tites"
+	menu := NewMenuBar(nil)
+	menu.NewItem("PGUP / PGDOWN to SCROLL")
+	menu.NewItem("ENTER to QUIT")
+	menu.AttachScroller(scrol)
+
+	ev := NewEventHandler()
+	ev.AddMenuBar(menu)
+	ch := ev.Launch()
+	scrol.Buffer.WriteString("Hello world!\n")
+	scrol.Buffer.WriteString("Hello world!\n")
+	scrol.Buffer.WriteString("Hello world!\n")
+	scrol.Buffer.WriteString("Hello world!\n")
+
+	b, _ := ioutil.ReadFile("99_test.go")
+
+	scrol.Buffer.Write([]byte(string(b)))
+
+	select {
+	case out := <-ev.Output:
+		fmt.Println(out)
+		menu.Destroy()
+	case in := <-ev.Input:
+		fmt.Println(in)
+		menu.Destroy()
+	case u := <-ch:
+		fmt.Println(u)
+		menu.Destroy()
+
+	}
+
 }

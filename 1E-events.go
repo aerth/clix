@@ -53,9 +53,8 @@ func NewEventHandler() *EventHandler {
 }
 
 // Launch fires up the attached widgets.
-//This should be one of the first things called in your main,
+// This should be one of the first things called in your main,
 // after attaching to ONE menu with ev.AddMenuBar
-// ctx is given to be able to 'shut er down'
 func (ev *EventHandler) Launch() chan int {
 	donechan := make(chan int, 1)
 	if ev.launched {

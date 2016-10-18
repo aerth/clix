@@ -82,6 +82,7 @@ func StdOut(screen tcell.Screen) {
 	screen.Fini()
 }
 
+// Blank screen
 func Blank() tcell.Screen {
 	return load(nil)
 }

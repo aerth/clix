@@ -11,8 +11,9 @@ import (
 // If len(s) > ymax-starty, s will go off the screen.
 func Type(scr tcell.Screen, startx int, starty int, style tcell.Style, s string) {
 	x, y := startx, starty
-	for i := 0; i < len(s); i++ {
-		scr.SetCell(x+i, y, style, rune(s[i]))
+	runes := []rune(s)
+	for i := 0; i < len(runes); i++ {
+		scr.SetCell(x+i, y, style, runes[i])
 	}
 }
 
@@ -67,13 +68,17 @@ func Eat(screen tcell.Screen, timing int) {
 	}
 	xmax, ymax := screen.Size()
 	for i := 0; i < ((xmax*ymax)+(xmax*ymax))*2; i++ {
-		go func() {
-			if timing > 0 {
-				time.Sleep(time.Duration(int64(rand.Intn(timing)) * int64(time.Millisecond)))
-			}
-			screen.SetCell(rand.Intn(xmax), rand.Intn(ymax), tcell.Style(rand.Intn(255)), rune(rand.Intn(800)))
+		//go func() {
+		if i%2 == 1 {
+
 			screen.Show()
-		}()
+		}
+		runes := []rune("goodbye")
+		screen.SetCell(rand.Intn(xmax), rand.Intn(ymax), tcell.Style(rand.Intn(255)), runes[rand.Intn(len(runes)-1)])
+		if timing > 0 {
+			time.Sleep(time.Duration(int64(timing) * int64(time.Millisecond)))
+		}
+		//}()
 	}
 }
 
@@ -86,7 +91,7 @@ func UnEat(screen tcell.Screen, timing int) {
 	for i := 0; i < ((xmax*ymax)+(xmax*ymax))*4; i++ {
 
 		if timing > 0 {
-			time.Sleep(time.Duration(int64(rand.Intn(timing)) * int64(time.Millisecond)))
+			time.Sleep(time.Duration(int64(timing) * int64(time.Microsecond)))
 		}
 		screen.SetCell(rand.Intn(xmax), rand.Intn(ymax), style2, rune(0))
 		screen.Show()

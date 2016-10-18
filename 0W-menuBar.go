@@ -4,7 +4,6 @@ package clix
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/gdamore/tcell"
@@ -126,10 +125,10 @@ func (m *MenuBar) draw() {
 	xmax, ymax := m.screen.Size()
 	var ts = 0
 	if m.title != "" {
-		Type(m.screen, 2, ymax-m.mostitems-2, style5, fmt.Sprint(m.title))
+		Type(m.screen, 2, ymax-m.mostitems-2, style5, m.title)
 	}
 	if m.message != "" {
-		Type(m.screen, 2, 1, style5, fmt.Sprint(m.message))
+		Type(m.screen, 2, 1, style5, m.message)
 
 	}
 	var itemnum int
