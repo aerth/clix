@@ -415,8 +415,12 @@ func (m *MenuBar) handleEvents() string {
 						m.Clear()
 						continue
 					case tcell.KeyPgDn:
-
-						if m.scroller.loc+xmax+xmax+m.scroller.loc >= m.scroller.Buffer.Len()-5 {
+						g := 5
+						mod := ev.Modifiers()
+						if mod == 1 {
+							g = 1
+						}
+						if m.scroller.loc+xmax+xmax+m.scroller.loc >= m.scroller.Buffer.Len()-g {
 							m.scroller.loc = m.scroller.Buffer.Len() - (xmax * 5)
 							if m.scroller.loc < 0 {
 								m.scroller.loc = 0
@@ -424,16 +428,21 @@ func (m *MenuBar) handleEvents() string {
 
 							continue
 						}
-						m.scroller.loc = m.scroller.loc + (xmax * 5)
+						m.scroller.loc = m.scroller.loc + (xmax * g)
 						continue
 						////log.Println(m.scroller.loc)
 					case tcell.KeyPgUp:
-						if m.scroller.loc-xmax <= (xmax - 5) {
+						g := 5
+						mod := ev.Modifiers()
+						if mod == 1 {
+							g = 1
+						}
+						if m.scroller.loc-xmax <= (xmax - g) {
 							m.scroller.loc = 0
 							m.Clear()
 							continue
 						}
-						m.scroller.loc = m.scroller.loc - (xmax * 5) - 5
+						m.scroller.loc = m.scroller.loc - (xmax * 5) - g
 						////log.Println(m.scroller.loc)
 					case tcell.KeyEnter:
 						if m.zindex != 0 {

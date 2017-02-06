@@ -132,7 +132,8 @@ func ScrollWriter(parent *MenuBar, scrolls [][]rune) {
 			break // thats all for this slice of the buffer
 		}
 		for i := 2; i < xmax-2; i++ {
-			scr.SetCell(i, y+m, style2+5, rune(0))
+			scr.SetCell(i, y+m, style2+4, rune(0))
+
 		}
 		x = 2
 		for i := 0; i < len(v); i++ {
@@ -143,7 +144,7 @@ func ScrollWriter(parent *MenuBar, scrolls [][]rune) {
 			}
 			x++
 
-			scr.SetCell(x, y+m, style2+5, v[i])
+			scr.SetCell(x, y+m, style2, v[i])
 
 			if y > ymax-parent.mostitems-ts-3 {
 				//	log.Printf("Breaking at %vx%v > %v", y, z, ymax-parent.mostitems-ts-3)
