@@ -3,12 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"strconv"
 	"time"
 
-	"github.com/aerthlib/clix/clix2"
-	"github.com/aerthlib/filer"
+	"github.com/aerth/clix/clix2"
+	"github.com/aerth/filer"
 )
 
 func main() {
