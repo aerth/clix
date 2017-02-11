@@ -227,10 +227,11 @@ func (w *Window) Present() {
 				w.buffer.WriteRune(e.(*tcell.EventKey).Rune())
 				//w.Type(Coordinates{X: 1, Y: 2}, w.buffer.String())
 			case tcell.KeyCtrlJ: // Ctrl ENTER
-				mod := e.(*tcell.EventKey).Modifiers()
+				//mod := e.(*tcell.EventKey).Modifiers()
+
 				//log.Println("Key Mod:", mod)
 			case tcell.KeyEnter:
-				mod := e.(*tcell.EventKey).Modifiers()
+				//mod := e.(*tcell.EventKey).Modifiers()
 				//log.Println("Key Mod:", mod)
 				w.buffer.WriteString("\n")
 				w.Output <- w.buffer.String()

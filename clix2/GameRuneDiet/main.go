@@ -66,7 +66,6 @@ Loop:
 		case output := <-win.Output:
 			switch output.(type) {
 			case int: // is a score!
-				score := output.(int)
 				//log.Println("Received Score:", score)
 				break Loop
 			case string:
