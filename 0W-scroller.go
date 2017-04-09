@@ -34,6 +34,17 @@ func NewScrollFrame(t string) *ScrollFrame {
 	return s
 }
 
+// ScrollToByte number
+func (s *ScrollFrame) ScrollToByte(n int) {
+	s.loc = n
+}
+
+// ScrollToByte number
+func (s *ScrollFrame) ScrollToEnd() {
+	maxx, maxy := s.parentmenu.screen.Size()
+	s.loc = s.Buffer.Len() - maxx*maxy
+}
+
 //Present to user
 func (s *ScrollFrame) Present() {
 	b := s.Buffer.Bytes()

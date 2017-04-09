@@ -135,7 +135,7 @@ func (m *MenuBar) draw() {
 	for i, v := range m.Children {
 		itemnum++
 		runelabel := []rune(v.Label)
-		for r, x, y := 0, 1, ymax-m.mostitems+itemnum-2+ts; r < len(runelabel); r++ {
+		for r, x, y := 0, 1, ymax-m.mostitems+itemnum-1+ts; r < len(runelabel); r++ {
 			if r >= len(runelabel) {
 				break
 			}

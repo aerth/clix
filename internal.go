@@ -13,18 +13,19 @@ func (m *MenuBar) drawnextto(parent *MenuBar, sibnum int) {
 		Type(m.screen, 20*(sibnum+1), ymax-parent.mostitems-2, tcell.StyleDefault, m.title)
 		ts++
 	}
+
 	var itemnum int
 	for i, v := range m.Children {
 		itemnum++
 		runelabel := []rune(v.Label)
-		for r, x, y := 0, 20*(sibnum+1), ymax-parent.mostitems-ts+itemnum+1; r < len(runelabel); r++ {
+		for r, x, y := 0, 20*(sibnum+1)+2, ymax-parent.mostitems-ts+itemnum-1+ts; r < len(runelabel); r++ {
 			if r >= len(runelabel) {
 				break
 			}
 			x++
 			if x > xmax {
 				y++
-				x = 20
+				x = x + 20
 			}
 			if y > ymax {
 				break
